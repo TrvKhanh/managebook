@@ -125,6 +125,29 @@ public class ManagerController implements ActionListener {
         brorwerBook(currentBook, currentUser);// Hiển thị giao diện
     }
 
+
+    private void saveUser(String isbn, LibraryUser user){
+        String sql = "INSERT INTO User_delete(id, fullname, address, phonenumber, email, isbn, borrow_date, due_date, readingTime, type_user) VALUES(?,?,?,?,?,?,?,?,?,?)";
+
+        user.setIsbn(isbn);
+        try (Connection conn = SQLiteConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, user.getBorrowerId());
+            pstmt.setString(2, user.getFullName());
+            pstmt.setString(3, user.getAddress());
+            pstmt.setString(4, user.getPhoneNumber());
+            pstmt.setString(5, user.getEmail());
+            pstmt.setString(6, user.getIsbn());
+            pstmt.setString(7, String.valueOf(user.getBorrowDay()));
+            pstmt.setString(8,  user.setDueDay());
+            pstmt.setInt(9, user.getReadingTime());
+            pstmt.setString(10, user.getTypeUser());
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     private void brorwerBook(Book books, LibraryUser user){
         String sql = "INSERT INTO Users(id, fullname, address, phonenumber, email, isbn, borrow_date, due_date, readingTime, type_user) VALUES(?,?,?,?,?,?,?,?,?,?)";
 
@@ -276,13 +299,7 @@ public class ManagerController implements ActionListener {
         System.out.println("Searching book...");
     }
 
-    private void returnBook() {
-        if(this.user.managerBook.getBorrowerId().isEmpty()){
-            JOptionPane.showMessageDialog(null, "Không được để trống Borrower Id!.", "Alert", JOptionPane.WARNING_MESSAGE);
-        }
 
-        System.out.println("Returning book...");
-    }
 
     private void removeBook() {
         if (this.book.managerBook.getISBN().isEmpty()) {
@@ -389,7 +406,7 @@ public class ManagerController implements ActionListener {
             // Hiển thị thông tin sách lên các JTextField
             this.book.managerBook.setEditBook(foundBook);
         } else {
-            JOptionPane.showMessageDialog(null, "Không tìm thấy sách với mã ISBN này!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Không tìm thấy sách với mã ISBN: "+isbn, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -495,9 +512,64 @@ public class ManagerController implements ActionListener {
         }
         System.out.println("Searching book...");
     }
+
+
     public void searchUser(){
         searchUserId();
     }
+
+    private void returnBook() {
+        int id = 0;
+        if (this.user.managerBook.getBorrowerId().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Vui lòng nhập Borrower ID!", "Thông báo", JOptionPane.ERROR_MESSAGE);
+            return; // Kết thúc phương thức nếu không có thông tin nào được nhập
+        }
+        try {
+            id = Integer.parseInt(this.user.managerBook.getBorrowerId());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "ID phải là một số hợp lệ!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Nếu có giá trị trong ô Borrower ID, đảm bảo không có thông tin nào khác được nhập
+        if (!this.user.managerBook.getFullName().isEmpty() ||
+                !this.user.managerBook.getEmail().isEmpty() ||
+                !this.user.managerBook.getAddress().isEmpty() ||
+                !this.user.managerBook.getPhoneNumber().isEmpty() ||
+                !this.user.managerBook.getDueDate().isEmpty() ||
+                !this.user.managerBook.getTyprUse().isEmpty()) {
+
+            JOptionPane.showMessageDialog(null, "Chỉ được nhập Borrower ID, không được nhập thêm thông tin khác!", "Thông báo", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        LibraryUser users = getUserById(id);
+
+        // Kiểm tra nếu users là null
+        if (users == null) {
+            JOptionPane.showMessageDialog(null, "Không tìm thấy người dùng với ID: " + id, "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        saveUser(users.getIsbn(), users);
+
+        String deleteQuery = "DELETE FROM Users WHERE id = ?";
+        try (Connection conn = SQLiteConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
+            pstmt.setInt(1, id);
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(null, "Xóa sách thành công!", "Thông báo!", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null, "Không thể xóa sách!", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Lỗi khi xóa sách: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
 
     private LibraryUser getUserById(int id) {
         String sql = "SELECT * FROM Users WHERE id = ?";

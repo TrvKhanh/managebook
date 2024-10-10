@@ -499,19 +499,9 @@ public class ManagerBook extends JFrame {
         // Lặp qua danh sách sách và thêm vào model
 
         Object[] rowData = {book.getISBN(), book.getTitle(), book.getAuthors(), book.getPublisher(), book.getGenre(), book.getPageNumber(), book.getNumberBook(), book.getTotalBooksInStock() , book.getStatus(),
-                user.getIsbn(), user.getEmail(), user.getPhoneNumber(), user.getBorrowDay(), user.getDueDay(), user.getReturnDay(), user.getTypeUser(), user.getFineMoney()};
+                user.getBorrowerId(), user.getEmail(), user.getPhoneNumber(), user.getBorrowDay(), user.getDueDay(), user.getReturnDay(), user.getTypeUser(), user.getFineMoney()};
         model.addRow(rowData);  // Thêm hàng vào DefaultTableModel
 
-    }
-
-    public void displayUser(LibraryUser user){
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-
-        model.setRowCount(0);
-
-        Object[] rowData = {
-                user.getIsbn(), user.getEmail(), user.getPhoneNumber(), user.getBorrowDay(), user.getDueDay(), user.getReturnDay(), user.getTypeUser(), user.getFineMoney()};
-        model.addRow(rowData);
     }
 
 
