@@ -11,22 +11,25 @@ import java.util.Date;
 public class LibraryUser extends Person{
 
     private int borrowerId;
-    private Date borrowDay;
-    private Date dueDay;
-    private Date returnDay;
+    private String borrowDay;
+    private String dueDay;
+    private String returnDay;
     private int readingTime;
     private String typeUser;
     private int fineMoney;
+    private String isbn = "";
     public LibraryUser(String fullName, String address, String phoneNumber, String email, int borrowerId,
-                       Date borrowDay, Date dueDay, Date returnDay, int readingTime, String typeUser, ManagerBook managerBook) {
+                       String borrowDay, String dueDay, String returnDay, int readingTime, String typeUser, ManagerBook managerBook, String isbn, int fineMoney) {
         super(fullName, address, phoneNumber, email, managerBook);
         this.borrowerId = borrowerId;
         this.borrowDay = borrowDay;
         this.dueDay = dueDay;
         this.readingTime = readingTime;
         this.typeUser = typeUser;
-        fineMoney = 0;
         this.returnDay = returnDay;
+        this.isbn = isbn;
+        this.fineMoney = fineMoney;
+
     }
 
     public LibraryUser(LibraryUser user) {
@@ -46,27 +49,18 @@ public class LibraryUser extends Person{
         this.borrowerId =  Integer.parseInt(managerBook.getBorrowerId());
     }
 
-    public Date getBorrowDay() {
+    public String getBorrowDay() {
         return borrowDay;
     }
 
 
-    public Date getDueDay() {
+    public String getDueDay() {
         return dueDay;
     }
 
     public String setDueDay() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        dateFormat.setLenient(false); // Không cho phép định dạng sai
-
-        String dueDate = null;
-        try {
-            this.dueDay = dateFormat.parse(managerBook.getDueDate());
-            dueDate = dateFormat.format(this.dueDay);
-        } catch (ParseException ex) {
-            System.out.println("Invalid Date Format");
-        }
-        return dueDate;
+            dueDay = managerBook.getDueDate();
+        return dueDay;
     }
 
     public int getReadingTime() {
@@ -84,6 +78,31 @@ public class LibraryUser extends Person{
 
     public void setTypeUser() {
         this.typeUser = managerBook.getTyprUse();
+    }
+
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public int getFineMoney() {
+        return fineMoney;
+    }
+
+    public void setFineMoney(int fineMoney) {
+        this.fineMoney = fineMoney;
+    }
+
+    public String getReturnDay() {
+        return returnDay;
+    }
+
+    public void setReturnDay(String returnDay) {
+        this.returnDay = returnDay;
     }
 
 

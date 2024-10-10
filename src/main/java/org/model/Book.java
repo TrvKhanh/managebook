@@ -35,8 +35,6 @@ public class Book {
         this.authors = book.getAuthors();
         this.title = book.getTitle();
         this.publisher = book.getPublisher();
-
-
         this.totalBooksInStock = book.getTotalBooksInStock();
         this.genre = book.getGenre();
         this.managerBook = book.managerBook;
@@ -118,6 +116,4 @@ public class Book {
     public void setPageNumber(){
         this.pageNumber = Integer.parseInt(managerBook.getPageNumber());
     }
-
-
 }

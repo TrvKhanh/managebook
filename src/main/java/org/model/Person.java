@@ -49,5 +49,4 @@ public class Person {
         this.email = managerBook.getEmail();
     }
 
-
 }

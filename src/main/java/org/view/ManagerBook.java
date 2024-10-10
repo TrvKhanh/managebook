@@ -18,6 +18,7 @@ import javax.swing.table.DefaultTableModel;
 import jdk.internal.icu.util.CodePointMap;
 import org.controller.ManagerController;
 import org.model.Book;
+import org.model.LibraryUser;
 import org.model.ListBook;
 
 import java.awt.event.ActionListener;
@@ -27,6 +28,8 @@ import java.awt.event.ActionEvent;
 public class ManagerBook extends JFrame {
 
     private static final long serialVersionUID = 1L;
+    private final JTextField brrowDay_text;
+    private final JButton btnSearchUser;
     private JPanel contentPane;
     private JTextField titelBook_text;
     private JTextField author_text;
@@ -47,6 +50,7 @@ public class ManagerBook extends JFrame {
     private JComboBox comboBox_type_user;
     private JSpinner spinner_readingTime;
     private DefaultTableModel model ;
+    private JComboBox comboBox_status;
 
     /**
      * Launch the application.
@@ -235,7 +239,7 @@ public class ManagerBook extends JFrame {
 
                 },
                 new String[] {
-                        "ISBN", "Title", "Author", "Publisher", "Genre", "Page number", "Available Copies", "Available Books", "Status", "Brrower ID", "Email", "Phone Number", "Borrow Date", "Due Date", "Return Date", "Books Borrowed", "Type User", "Fined money"
+                        "ISBN", "Title", "Author", "Publisher", "Genre", "Page number", "Available Copies", "Available Books", "Status", "Brrower ID", "Email", "Phone Number", "Borrow Date", "Due Date", "Return Date", "Type User", "Fined money"
                 }
         ));
         model = (DefaultTableModel) table.getModel();
@@ -346,13 +350,37 @@ public class ManagerBook extends JFrame {
         btnUpdate.setBackground(Color.CYAN);
         btnUpdate.setBounds(555, 846, 117, 25);
         contentPane.add(btnUpdate);
+        btnUpdate.addActionListener(action);
 
         JButton btnClear = new JButton("Clear");
         btnClear.setBackground(Color.CYAN);
-        btnClear.setBounds(889, 846, 117, 25);
+        btnClear.setBounds(889, 846, 190, 25);
         btnClear.addActionListener(action);
         contentPane.add(btnClear);
 
+        JLabel lblIsbn_3_1_1 = new JLabel("Status:");
+        lblIsbn_3_1_1.setBounds(60, 411, 70, 15);
+        contentPane.add(lblIsbn_3_1_1);
+
+        JLabel lblNewLabel_7 = new JLabel("Borrow Day\n:");
+        lblNewLabel_7.setBounds(60, 578, 111, 15);
+        contentPane.add(lblNewLabel_7);
+
+        brrowDay_text = new JTextField();
+        brrowDay_text.setColumns(10);
+        brrowDay_text.setBounds(217, 576, 183, 19);
+        contentPane.add(brrowDay_text);
+
+        btnSearchUser = new JButton("Search User");
+        btnSearchUser.setBackground(Color.CYAN);
+        btnSearchUser.setBounds(889, 895, 190, 25);
+        contentPane.add(btnSearchUser);
+        btnSearchUser.addActionListener(action);
+
+        String[] status = new String[] {"","Available", "Check Out"};
+        comboBox_status = new JComboBox<String>(status);
+        comboBox_status.setBounds(217, 406, 183, 24);
+        contentPane.add(comboBox_status);
         // Điều chỉnh độ rộng cho các cột
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(170); // Đặt độ rộng của mỗi cột là 150 (có thể điều
@@ -440,6 +468,7 @@ public class ManagerBook extends JFrame {
         page_number_text.setText("");
         spinner_readingTime.setValue(0);
         comboBox_type_user.setSelectedIndex(0);
+        comboBox_status.setSelectedIndex(0);
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setRowCount(0);
 
@@ -458,6 +487,31 @@ public class ManagerBook extends JFrame {
         Object[] rowData = {book.getISBN(), book.getTitle(), book.getAuthors(), book.getPublisher(), book.getGenre(), book.getPageNumber(), book.getNumberBook(), book.getTotalBooksInStock() , book.getStatus()};
         model.addRow(rowData);  // Thêm hàng vào DefaultTableModel
 
+    }
+
+    public void displayTable_user(Book book, LibraryUser user) {
+        // Giả sử bạn đã tạo một DefaultTableModel trước đó
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+
+        // Xóa tất cả các hàng hiện có
+        model.setRowCount(0);
+
+        // Lặp qua danh sách sách và thêm vào model
+
+        Object[] rowData = {book.getISBN(), book.getTitle(), book.getAuthors(), book.getPublisher(), book.getGenre(), book.getPageNumber(), book.getNumberBook(), book.getTotalBooksInStock() , book.getStatus(),
+                user.getIsbn(), user.getEmail(), user.getPhoneNumber(), user.getBorrowDay(), user.getDueDay(), user.getReturnDay(), user.getTypeUser(), user.getFineMoney()};
+        model.addRow(rowData);  // Thêm hàng vào DefaultTableModel
+
+    }
+
+    public void displayUser(LibraryUser user){
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+
+        model.setRowCount(0);
+
+        Object[] rowData = {
+                user.getIsbn(), user.getEmail(), user.getPhoneNumber(), user.getBorrowDay(), user.getDueDay(), user.getReturnDay(), user.getTypeUser(), user.getFineMoney()};
+        model.addRow(rowData);
     }
 
 

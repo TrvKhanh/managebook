@@ -16,10 +16,10 @@ public class LoadModelAndPredict {
             CSVLoader loader = new CSVLoader();
             loader.setSource(new File("/home/kai/IdeaProjects/LibraryBook/src/main/java/org/model/book_return_data_balanced.csv"));
 
-            // Tải dữ liệu vào một đối tượng Instances
+
             Instances data = loader.getDataSet();
 
-            // Đặt thuộc tính mục tiêu (lớp) cho mô hình
+
             data.setClassIndex(data.numAttributes() - 1);
 
             // Tải mô hình đã lưu từ file
@@ -30,9 +30,9 @@ public class LoadModelAndPredict {
 
             // Tạo một instance mới cho dự đoán
             double[] values = new double[data.numAttributes()];
-            values[0] = readingHours; // Giả sử chỉ số 0 là 'Reading_Hours'
-            values[1] = totalPages; // Giả sử chỉ số 1 là 'Total_Pages'
-            values[2] = 0; // Placeholder cho cột lớp, sẽ không được sử dụng trong dự đoán
+            values[0] = readingHours;
+            values[1] = totalPages;
+            values[2] = 0;
 
             Instance newInstance = new DenseInstance(1.0, values);
             newInstance.setDataset(data);
@@ -40,12 +40,12 @@ public class LoadModelAndPredict {
             // Dự đoán lớp cho instance mới
             double predictedClass = logistic.classifyInstance(newInstance);
 
-            // Chuyển đổi predictedClass thành int và trả về
+
             return  predictedClass;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return -1; // Hoặc bạn có thể chọn trả về một giá trị mặc định khác
+        return -1;
     }
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Objects;
 
-// Lớp ListBook quản lý danh sách các cuốn sách và hỗ trợ các thao tác trên danh sách sách
+
 public class ListBook implements Iterable<Book> {
     private ArrayList<Book> books;
 
@@ -49,6 +49,6 @@ public class ListBook implements Iterable<Book> {
     // Phương thức trả về Iterator của danh sách sách để sử dụng trong vòng lặp
     @Override
     public Iterator<Book> iterator() {
-        return books.iterator(); // Trả về Iterator của `ArrayList`
+        return books.iterator();
     }
 }
