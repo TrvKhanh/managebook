@@ -45,7 +45,6 @@ public class ListBook implements Iterable<Book> {
         }
         throw new IllegalArgumentException("Không tìm thấy sách với mã ISBN: " + isbn);
     }
-
     // Trả về danh sách tất cả các sách
     public ArrayList<Book> getBooks() {
         return books;

@@ -307,7 +307,7 @@ public class ManagerController implements ActionListener {
 
         // Kiểm tra nếu users là null
         if (users == null) {
-            JOptionPane.showMessageDialog(null, "Không tìm thấy người dùng với ID: " + id, "Lỗi", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Không tìm thấy người dùng với ID: " + id);
             return;
         }
 
@@ -337,27 +337,36 @@ public class ManagerController implements ActionListener {
     //"Remove Book"=================================================================
     private void removeBook() {
         if (this.book.managerBook.getISBN().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Không được để trống ISBN!.", "Alert", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Không được để trống ISBN!", "Alert", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        try {
-            this.book.setISBN();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(null, "Vui lòng nhập  mã ISBN là số!", "Alert", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        if (isIsbnExist(this.book.managerBook.getISBN()) == false){
-            JOptionPane.showMessageDialog(null, "\"Sách chưa tồn tại trong hệ thống.!!", "Cảnh báo !!", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        else {
-            String sql = "SELECT * FROM Books WHERE ISBN = ?";
-            listBooks.removeBook(this.book.managerBook.getISBN());
-            Book book_find =  getBookByIsbn(this.book.managerBook.getISBN(), sql);
 
-            saveBook_delelted(book_find);
-            // Xóa sách từ cơ sở dữ liệu
-            String deleteQuery = "DELETE FROM Books WHERE ISBN = ?";
+        try {
+            this.book.setISBN(); // Thiết lập ISBN
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(null, "Vui lòng nhập mã ISBN là số!", "Alert", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (!isIsbnExist(this.book.managerBook.getISBN())) {
+            JOptionPane.showMessageDialog(null, "Sách chưa tồn tại trong hệ thống!", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String sql = "SELECT * FROM Books WHERE ISBN = ?";
+        Book book_find = getBookByIsbn(this.book.managerBook.getISBN(), sql);
+
+        if (book_find == null) {
+            JOptionPane.showMessageDialog(null, "Không tìm thấy sách với ISBN: " + this.book.managerBook.getISBN(), "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        removeAndAddBookToDeleted(book_find); // Gọi phương thức để xử lý sách đã xóa
+
+        String deleteQuery = "DELETE FROM Books WHERE ISBN = ?";
+        try {
+            listBooks.removeBook(this.book.managerBook.getISBN());
+
             try (Connection conn = SQLiteConnection.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
                 pstmt.setString(1, this.book.managerBook.getISBN());
@@ -365,17 +374,34 @@ public class ManagerController implements ActionListener {
 
                 if (rowsAffected > 0) {
                     JOptionPane.showMessageDialog(null, "Xóa sách thành công!", "Thông báo!", JOptionPane.INFORMATION_MESSAGE);
-                    return;
                 } else {
                     JOptionPane.showMessageDialog(null, "Không thể xóa sách!", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
-                    return;
                 }
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(null, "Lỗi khi xóa sách: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
             }
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
         }
     }
+
+    private void removeAndAddBookToDeleted(Book book) {
+        // Xóa sách có ISBN tương ứng khỏi bảng Books_delete nếu tồn tại
+        String deleteFromDeletedQuery = "DELETE FROM Books_delete WHERE ISBN = ?";
+        try (Connection conn = SQLiteConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(deleteFromDeletedQuery)) {
+            pstmt.setString(1, book.getISBN());
+            pstmt.executeUpdate(); // Thực hiện xóa
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Lỗi khi xóa sách khỏi danh sách đã xóa: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+
+        // Thêm sách vào bảng Books_delete
+        saveBook_delelted(book); // Giả định rằng phương thức này đã tồn tại và hoạt động bình thường
+    }
+
+
+
     // "Edit User"==============================================================>>>>>>>>>>>>>>>>>>>>>
     public void updateUserInfor(){
         editUser();
@@ -557,16 +583,16 @@ public class ManagerController implements ActionListener {
         String sql = "INSERT INTO Books_delete(title, author, publisher, genre, available_copies, page_number, status, available_books, ISBN) VALUES(?,?,?,?,?,?,?,?,?)";
         try (Connection conn = SQLiteConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, book.getTitle());
-                pstmt.setString(2, book.getAuthors());
-                pstmt.setString(3, book.getPublisher());
-                pstmt.setString(4, book.getGenre());
-                pstmt.setInt(5, book.getNumberBook());
-                pstmt.setInt(6, book.getPageNumber());
-                pstmt.setString(7, book.getStatus());
-                pstmt.setInt(8, book.getTotalBooksInStock());
-                pstmt.setString(9, book.getISBN());
-                pstmt.executeUpdate();
+            pstmt.setString(1, book.getTitle());
+            pstmt.setString(2, book.getAuthors());
+            pstmt.setString(3, book.getPublisher());
+            pstmt.setString(4, book.getGenre());
+            pstmt.setInt(5, book.getNumberBook());
+            pstmt.setInt(6, book.getPageNumber());
+            pstmt.setString(7, book.getStatus());
+            pstmt.setInt(8, book.getTotalBooksInStock());
+            pstmt.setString(9, book.getISBN());
+            pstmt.executeUpdate();
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
