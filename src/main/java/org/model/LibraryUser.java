@@ -2,34 +2,30 @@ package org.model;
 
 import org.view.ManagerBook;
 
+import java.sql.Date;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.Date;
-
-public class LibraryUser extends Person{
+public class LibraryUser extends Person {
 
     private int borrowerId;
-    private String borrowDay;
-    private String dueDay;
-    private String returnDay;
+    private Date borrowDay;
+    private Date dueDay;
+    private Date returnDay;
     private int readingTime;
     private String typeUser;
     private int fineMoney;
     private String isbn = "";
+
     public LibraryUser(String fullName, String address, String phoneNumber, String email, int borrowerId,
-                       String borrowDay, String dueDay, String returnDay, int readingTime, String typeUser, ManagerBook managerBook, String isbn, int fineMoney) {
+                       Date borrowDay, Date dueDay, Date returnDay, int readingTime, String typeUser, ManagerBook managerBook, String isbn, int fineMoney) {
         super(fullName, address, phoneNumber, email, managerBook);
         this.borrowerId = borrowerId;
         this.borrowDay = borrowDay;
         this.dueDay = dueDay;
+        this.returnDay = returnDay;
         this.readingTime = readingTime;
         this.typeUser = typeUser;
-        this.returnDay = returnDay;
         this.isbn = isbn;
         this.fineMoney = fineMoney;
-
     }
 
     public LibraryUser(LibraryUser user) {
@@ -37,8 +33,11 @@ public class LibraryUser extends Person{
         this.borrowerId = user.borrowerId;
         this.borrowDay = user.borrowDay;
         this.dueDay = user.dueDay;
+        this.returnDay = user.returnDay;
         this.readingTime = user.readingTime;
         this.typeUser = user.typeUser;
+        this.isbn = user.isbn;
+        this.fineMoney = user.fineMoney;
     }
 
     public int getBorrowerId() {
@@ -46,26 +45,28 @@ public class LibraryUser extends Person{
     }
 
     public void setBorrowerId() {
-        this.borrowerId =  Integer.parseInt(managerBook.getBorrowerId());
+        this.borrowerId = Integer.parseInt(managerBook.getBorrowerId());
     }
 
-    public String getBorrowDay() {
+    public Date getBorrowDay() {
         return borrowDay;
     }
-
-
-    public String getDueDay() {
+    public Date setBorrowDay() {
+        this.dueDay = managerBook.getDueDate();
+        return dueDay;
+    }
+    public Date getDueDay() {
         return dueDay;
     }
 
-    public String setDueDay() {
-            dueDay = managerBook.getDueDate();
+    public Date setDueDay() {
+        this.dueDay = managerBook.getDueDate();
         return dueDay;
     }
+
 
     public int getReadingTime() {
         return readingTime;
-
     }
 
     public void setReadingTime() {
@@ -79,7 +80,6 @@ public class LibraryUser extends Person{
     public void setTypeUser() {
         this.typeUser = managerBook.getTyprUse();
     }
-
 
     public String getIsbn() {
         return isbn;
@@ -97,13 +97,11 @@ public class LibraryUser extends Person{
         this.fineMoney = fineMoney;
     }
 
-    public String getReturnDay() {
+    public Date getReturnDay() {
         return returnDay;
     }
 
-    public void setReturnDay(String returnDay) {
+    public void setReturnDay(Date returnDay) {
         this.returnDay = returnDay;
     }
-
-
 }

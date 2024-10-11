@@ -5,7 +5,7 @@ import org.view.ManagerBook;
 public class Book {
     private String ISBN;
     private int numberBook;
-    private boolean status;
+    private String status;
     private String authors;
     private String title;
     private String publisher;
@@ -18,7 +18,7 @@ public class Book {
         this.ISBN = ISBN;
         this.numberBook = numberBook;
         this.pageNumber = pageNumber;
-        this.status = true;
+        this.status = "Available";
         this.authors = authors;
         this.title = title;
         this.publisher = publisher;
@@ -31,7 +31,7 @@ public class Book {
         this.ISBN = book.getISBN();
         this.numberBook = book.getNumberBook();
         this.pageNumber = book.getPageNumber();
-        this.status = true;
+        this.status = "Available";
         this.authors = book.getAuthors();
         this.title = book.getTitle();
         this.publisher = book.getPublisher();
@@ -56,16 +56,16 @@ public class Book {
         this.numberBook = Integer.parseInt(managerBook.getNumberBook());
     }
 
-    public boolean getStatus() {
+    public String getStatus() {
         return status;
     }
 
     public void setStatus() {
         if(totalBooksInStock == 0) {
-            this.status = false;
+            this.status = "Check Out";
         }
         else{
-            this.status = true;
+            this.status = "Available";
         }
     }
 
@@ -98,10 +98,6 @@ public class Book {
         return totalBooksInStock;
     }
 
-    public void setTotalBooksInStock() {
-        this.totalBooksInStock = totalBooksInStock;
-    }
-
     public String getGenre() {
         return genre;
     }
@@ -116,4 +112,18 @@ public class Book {
     public void setPageNumber(){
         this.pageNumber = Integer.parseInt(managerBook.getPageNumber());
     }
+
+    public void updateNumberBook(){
+        if(totalBooksInStock > 0) {
+            this.totalBooksInStock--;
+        }else{
+            this.totalBooksInStock = 0;
+        }
+    }
+
+    public void addNumberBook(){
+        this.totalBooksInStock = this.numberBook;
+    }
+
+
 }

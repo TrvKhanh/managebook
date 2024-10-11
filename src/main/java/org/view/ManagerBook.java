@@ -20,16 +20,21 @@ import org.controller.ManagerController;
 import org.model.Book;
 import org.model.LibraryUser;
 import org.model.ListBook;
+import org.model.ListUser;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.util.Iterator;
+import java.sql.Date ;
+import java.util.Calendar;
 
 @SuppressWarnings("unused")
 public class ManagerBook extends JFrame {
 
     private static final long serialVersionUID = 1L;
-    private final JTextField brrowDay_text;
     private final JButton btnSearchUser;
+    private final JButton btnDisplayBooks;
+    private final JButton btnDisplayUser;
     private JPanel contentPane;
     private JTextField titelBook_text;
     private JTextField author_text;
@@ -37,8 +42,6 @@ public class ManagerBook extends JFrame {
     private JTextField address_text;
     private JTextField phoneName_text;
     private JTextField email_text;
-
-    private JTextField dueDate_text;
     private JTextField brrowerId_text;
     private JTable table;
     private JTextField ISBN_text;
@@ -51,6 +54,9 @@ public class ManagerBook extends JFrame {
     private JSpinner spinner_readingTime;
     private DefaultTableModel model ;
     private JComboBox comboBox_status;
+    private ManagerController action;
+    private JSpinner spinner_readingTime_dueDate;
+    private JSpinner spinner_readingTime_borrowDate;
 
     /**
      * Launch the application.
@@ -63,7 +69,7 @@ public class ManagerBook extends JFrame {
     public ManagerBook(ListBook listBook) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 1920, 1080); // Reduced window size to make it more manageable
-        ManagerController action = new ManagerController(this, listBook);
+        action = new ManagerController(this, listBook);
 
 
 
@@ -103,7 +109,7 @@ public class ManagerBook extends JFrame {
         contentPane.add(label);
 
         JLabel lblName = new JLabel("Full Name:");
-        lblName.setBounds(60, 455, 80, 15);
+        lblName.setBounds(60, 493, 80, 15);
         contentPane.add(lblName);
 
         titelBook_text = new JTextField();
@@ -117,11 +123,11 @@ public class ManagerBook extends JFrame {
         author_text.setColumns(10);
 
         JLabel lblNewLabel_1 = new JLabel("Address:");
-        lblNewLabel_1.setBounds(60, 486, 70, 15);
+        lblNewLabel_1.setBounds(60, 520, 70, 15);
         contentPane.add(lblNewLabel_1);
 
         JLabel lblNewLabel_2 = new JLabel("Phone number:");
-        lblNewLabel_2.setBounds(60, 517, 111, 15);
+        lblNewLabel_2.setBounds(60, 547, 111, 15);
         contentPane.add(lblNewLabel_2);
 
         JLabel lblNewLabel_3 = new JLabel("Title: ");
@@ -133,15 +139,15 @@ public class ManagerBook extends JFrame {
         contentPane.add(lblNewLabel_4);
 
         JLabel lblNewLabel_5 = new JLabel("  ");
-        lblNewLabel_5.setBounds(60, 547, 94, 15);
+        lblNewLabel_5.setBounds(60, 580, 94, 15);
         contentPane.add(lblNewLabel_5);
 
         JLabel lblBorrower = new JLabel("Borrower");
-        lblBorrower.setBounds(36, 428, 70, 15);
+        lblBorrower.setBounds(36, 466, 70, 15);
         contentPane.add(lblBorrower);
 
         JLabel lblEmail = new JLabel("Email:");
-        lblEmail.setBounds(60, 547, 70, 15);
+        lblEmail.setBounds(60, 580, 70, 15);
         contentPane.add(lblEmail);
 
         JButton bntBorrow = new JButton("Borrow books");
@@ -153,7 +159,7 @@ public class ManagerBook extends JFrame {
         JButton btnSearchBook = new JButton("Search Book");
         btnSearchBook.addActionListener(action);
         btnSearchBook.setBackground(Color.CYAN);
-        btnSearchBook.setBounds(316, 895, 139, 25);
+        btnSearchBook.setBounds(261, 895, 139, 25);
         contentPane.add(btnSearchBook);
 
         JButton btnReturn = new JButton("Return books");
@@ -164,52 +170,47 @@ public class ManagerBook extends JFrame {
 
         JButton btnRemoveBook = new JButton("Remove Book");
         btnRemoveBook.setBackground(Color.RED);
-        btnRemoveBook.setBounds(724, 846, 151, 25);
+        btnRemoveBook.setBounds(870, 895, 139, 25);
         btnRemoveBook.addActionListener(action);
         contentPane.add(btnRemoveBook);
 
-        JButton btnEdit = new JButton("Edit");
+        JButton btnEdit = new JButton("Edit User");
         btnEdit.setBackground(Color.CYAN);
-        btnEdit.setBounds(555, 895, 117, 25);
+        btnEdit.setBounds(427, 846, 127, 25);
         btnEdit.addActionListener(action);
         contentPane.add(btnEdit);
 
         nameBrrower_text = new JTextField();
         nameBrrower_text.setColumns(10);
-        nameBrrower_text.setBounds(217, 453, 183, 19);
+        nameBrrower_text.setBounds(217, 491, 183, 19);
         contentPane.add(nameBrrower_text);
 
         address_text = new JTextField();
         address_text.setColumns(10);
-        address_text.setBounds(217, 484, 183, 19);
+        address_text.setBounds(217, 520, 183, 19);
         contentPane.add(address_text);
 
         phoneName_text = new JTextField();
         phoneName_text.setColumns(10);
-        phoneName_text.setBounds(217, 515, 183, 19);
+        phoneName_text.setBounds(217, 551, 183, 19);
         contentPane.add(phoneName_text);
 
         email_text = new JTextField();
         email_text.setColumns(10);
-        email_text.setBounds(217, 545, 183, 19);
+        email_text.setBounds(217, 578, 183, 19);
         contentPane.add(email_text);
 
         JLabel lblDueDate = new JLabel("Due Date:");
         lblDueDate.setBounds(60, 608, 80, 21);
         contentPane.add(lblDueDate);
 
-        dueDate_text = new JTextField();
-        dueDate_text.setColumns(10);
-        dueDate_text.setBounds(217, 609, 183, 19);
-        contentPane.add(dueDate_text);
-
         brrowerId_text = new JTextField();
         brrowerId_text.setColumns(10);
-        brrowerId_text.setBounds(217, 640, 183, 19);
+        brrowerId_text.setBounds(217, 657, 183, 19);
         contentPane.add(brrowerId_text);
 
         JLabel lblBorrowerId = new JLabel("Borrower id:");
-        lblBorrowerId.setBounds(60, 642, 94, 15);
+        lblBorrowerId.setBounds(60, 659, 94, 15);
         contentPane.add(lblBorrowerId);
 
         JLabel lblLybrari = new JLabel("Library Book Manager ");
@@ -246,16 +247,16 @@ public class ManagerBook extends JFrame {
         scrollPane.setViewportView(table);
 
         JLabel lblReadingTime = new JLabel("Reading Time:");
-        lblReadingTime.setBounds(60, 696, 127, 15);
+        lblReadingTime.setBounds(60, 730, 127, 15);
         contentPane.add(lblReadingTime);
 
         spinner_readingTime = new JSpinner();
-        spinner_readingTime.setBounds(217, 694, 40, 20);
+        spinner_readingTime.setBounds(217, 725, 40, 20);
         contentPane.add(spinner_readingTime);
 
         JButton btnAddBook = new JButton("Add Book");
         btnAddBook.setBackground(Color.CYAN);
-        btnAddBook.setBounds(316, 846, 139, 25);
+        btnAddBook.setBounds(261, 846, 139, 25);
         btnAddBook.addActionListener(action);
         contentPane.add(btnAddBook);
 
@@ -319,68 +320,115 @@ public class ManagerBook extends JFrame {
         lblNewLabel_8.setBounds(38, 819, 102, 15);
         contentPane.add(lblNewLabel_8);
 
-        JLabel lblBorrower_1 = new JLabel("Borrower");
+        JLabel lblBorrower_1 = new JLabel("Book");
         lblBorrower_1.setBounds(36, 199, 70, 15);
         contentPane.add(lblBorrower_1);
 
         Box horizontalBox_1_1_1 = Box.createHorizontalBox();
         horizontalBox_1_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-        horizontalBox_1_1_1.setBounds(36, 815, 1100, 146);
+        horizontalBox_1_1_1.setBounds(29, 819, 1183, 146);
         contentPane.add(horizontalBox_1_1_1);
 
 
         JLabel lblTypeUser = new JLabel("Type User:");
-        lblTypeUser.setBounds(60, 669, 127, 15);
+        lblTypeUser.setBounds(60, 691, 127, 15);
         contentPane.add(lblTypeUser);
 
 
         String[] typeUser = new String[] {"","Lecturer", "Student"};
         comboBox_type_user = new JComboBox<String>(typeUser);
-        comboBox_type_user.setBounds(217, 664, 183, 24);
+        comboBox_type_user.setBounds(217, 689, 183, 21);
         contentPane.add(comboBox_type_user);
 
 
         JButton button_exit = new JButton("Exit");
         button_exit.setBackground(Color.PINK);
-        button_exit.setBounds(740, 895, 111, 25);
+        button_exit.setBounds(1021, 846, 139, 25);
         contentPane.add(button_exit);
         button_exit.addActionListener(action);
 
         JButton btnUpdate = new JButton("Update");
         btnUpdate.setBackground(Color.CYAN);
-        btnUpdate.setBounds(555, 846, 117, 25);
+        btnUpdate.setBounds(578, 846, 111, 25);
         contentPane.add(btnUpdate);
         btnUpdate.addActionListener(action);
 
         JButton btnClear = new JButton("Clear");
         btnClear.setBackground(Color.CYAN);
-        btnClear.setBounds(889, 846, 190, 25);
+        btnClear.setBounds(578, 895, 111, 25);
         btnClear.addActionListener(action);
         contentPane.add(btnClear);
 
         JLabel lblIsbn_3_1_1 = new JLabel("Status:");
-        lblIsbn_3_1_1.setBounds(60, 411, 70, 15);
+        lblIsbn_3_1_1.setBounds(60, 425, 70, 15);
         contentPane.add(lblIsbn_3_1_1);
 
-        JLabel lblNewLabel_7 = new JLabel("Borrow Day\n:");
-        lblNewLabel_7.setBounds(60, 578, 111, 15);
-        contentPane.add(lblNewLabel_7);
-
-        brrowDay_text = new JTextField();
-        brrowDay_text.setColumns(10);
-        brrowDay_text.setBounds(217, 576, 183, 19);
-        contentPane.add(brrowDay_text);
 
         btnSearchUser = new JButton("Search User");
         btnSearchUser.setBackground(Color.CYAN);
-        btnSearchUser.setBounds(889, 895, 190, 25);
+        btnSearchUser.setBounds(427, 895, 127, 25);
         contentPane.add(btnSearchUser);
         btnSearchUser.addActionListener(action);
 
         String[] status = new String[] {"","Available", "Check Out"};
         comboBox_status = new JComboBox<String>(status);
-        comboBox_status.setBounds(217, 406, 183, 24);
+        comboBox_status.setBounds(217, 425, 183, 19);
         contentPane.add(comboBox_status);
+
+        JButton btnBookDeleted = new JButton("Book Deleted");
+        btnBookDeleted.setBackground(Color.MAGENTA);
+        btnBookDeleted.setBounds(1271, 846, 151, 25);
+        contentPane.add(btnBookDeleted);
+        btnBookDeleted.addActionListener(action);
+
+        JButton btnUserDeleted = new JButton("User Deleted");
+        btnUserDeleted.setBackground(Color.MAGENTA);
+        btnUserDeleted.setBounds(1271, 895, 151, 25);
+        contentPane.add(btnUserDeleted);
+        btnUserDeleted.addActionListener(action);
+
+        JButton btnSearchDeleted = new JButton("Search Deleted");
+        btnSearchDeleted.setBackground(Color.MAGENTA);
+        btnSearchDeleted.setBounds(1464, 846, 151, 25);
+        contentPane.add(btnSearchDeleted);
+        btnSearchDeleted.addActionListener(action);
+
+        Box horizontalBox_1_1_1_1 = Box.createHorizontalBox();
+        horizontalBox_1_1_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+        horizontalBox_1_1_1_1.setBounds(1253, 819, 415, 146);
+        contentPane.add(horizontalBox_1_1_1_1);
+
+        btnDisplayUser = new JButton("Display user");
+        btnDisplayUser.setBackground(Color.CYAN);
+        btnDisplayUser.setBounds(715, 846, 139, 25);
+        contentPane.add(btnDisplayUser);
+        btnDisplayUser.addActionListener(action);
+
+        btnDisplayBooks = new JButton("Display books");
+        btnDisplayBooks.setBackground(Color.CYAN);
+        btnDisplayBooks.setBounds(715, 895, 139, 25);
+        contentPane.add(btnDisplayBooks);
+
+        JButton btnArrange = new JButton("Arrange");
+        btnArrange.setBackground(Color.CYAN);
+        btnArrange.setBounds(870, 846, 139, 25);
+        contentPane.add(btnArrange);
+
+        spinner_readingTime_borrowDate = new JSpinner();
+        spinner_readingTime_borrowDate.setModel(new SpinnerDateModel(new Date(1728579600000L), new Date(1728579600000L), null, Calendar.DAY_OF_YEAR));
+        spinner_readingTime_borrowDate.setBounds(217, 633, 183, 20);
+        contentPane.add(spinner_readingTime_borrowDate);
+
+        JLabel lblBorrowerDate = new JLabel("Borrower Date:");
+        lblBorrowerDate.setBounds(60, 632, 127, 15);
+        contentPane.add(lblBorrowerDate);
+
+        spinner_readingTime_dueDate = new JSpinner();
+        spinner_readingTime_dueDate.setModel(new SpinnerDateModel(new Date(1728579600000L), new Date(1728579600000L), null, Calendar.DAY_OF_YEAR));
+        spinner_readingTime_dueDate.setBounds(217, 608, 183, 20);
+        contentPane.add(spinner_readingTime_dueDate);
+        btnDisplayBooks.addActionListener(action);
+        btnArrange.addActionListener(action);
         // Điều chỉnh độ rộng cho các cột
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(170); // Đặt độ rộng của mỗi cột là 150 (có thể điều
@@ -420,8 +468,14 @@ public class ManagerBook extends JFrame {
         return email_text.getText();
     }
 
-    public String getDueDate() {
-        return dueDate_text.getText();
+    public Date getDueDate() {
+        java.util.Date utilDate = (java.util.Date) spinner_readingTime_dueDate.getValue();
+        return new Date(utilDate.getTime());
+    }
+
+    public Date getBorrowDate() {
+        java.util.Date utilDate = (java.util.Date) spinner_readingTime_borrowDate.getValue();
+        return new Date(utilDate.getTime());
     }
 
     public String getNumberBook() {
@@ -463,7 +517,6 @@ public class ManagerBook extends JFrame {
         address_text.setText("");
         phoneName_text.setText("");
         email_text.setText("");
-        dueDate_text.setText("");
         brrowerId_text.setText("");
         page_number_text.setText("");
         spinner_readingTime.setValue(0);
@@ -529,15 +582,29 @@ public class ManagerBook extends JFrame {
         }
     }
 
-    public void setEditBook(Book book){
-        titelBook_text.setText(book.getTitle());
-        author_text.setText(book.getAuthors());
-        ISBN_text.setText(book.getISBN());
-        publisher_text.setText(book.getPublisher());
-        genre_text.setText(book.getGenre());
-        numberBook_text.setText(String.valueOf(book.getNumberBook()));
-        page_number_text.setText(String.valueOf(book.getPageNumber()));
+    public void updateTableUser(ListUser listUser) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        model.setRowCount(0);
+        ;// Xóa tất cả các hàng hiện có
+        for(LibraryUser user: listUser.getUsers()){
+            Object[] rowData = {
+                    user.getBorrowerId(), user.getEmail(), user.getPhoneNumber(),
+                    user.getBorrowDay(), user.getDueDay(), user.getReturnDay(), user.getTypeUser(), user.getFineMoney()
+            };
+            model.addRow(rowData);
+        }
     }
 
 
+    public void setEditUser(LibraryUser user){
+        brrowerId_text.setText(String.valueOf(user.getBorrowerId()));
+        nameBrrower_text.setText(user.getFullName());
+        address_text.setText(user.getAddress());
+        phoneName_text.setText(user.getPhoneNumber());
+        email_text.setText(user.getEmail());
+        spinner_readingTime_dueDate.setValue(user.getDueDay());
+        spinner_readingTime_borrowDate.setValue(user.getBorrowDay());
+        comboBox_type_user.setSelectedIndex(0);
+        spinner_readingTime.setValue(0);
+    }
 }
