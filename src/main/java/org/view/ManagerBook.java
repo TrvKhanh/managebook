@@ -53,10 +53,11 @@ public class ManagerBook extends JFrame {
     private JComboBox comboBox_type_user;
     private JSpinner spinner_readingTime;
     private DefaultTableModel model ;
-    private JComboBox comboBox_status;
     private ManagerController action;
     private JSpinner spinner_readingTime_dueDate;
     private JSpinner spinner_readingTime_borrowDate;
+    private JButton btnArrange_title;
+    private JButton btnArrangePageNum;
 
     /**
      * Launch the application.
@@ -151,7 +152,7 @@ public class ManagerBook extends JFrame {
         contentPane.add(lblEmail);
 
         JButton bntBorrow = new JButton("Borrow books");
-        bntBorrow.setBackground(Color.CYAN);
+        bntBorrow.setBackground(Color.GREEN);
         bntBorrow.setBounds(60, 846, 139, 25);
         bntBorrow.addActionListener(action);
         contentPane.add(bntBorrow);
@@ -163,20 +164,20 @@ public class ManagerBook extends JFrame {
         contentPane.add(btnSearchBook);
 
         JButton btnReturn = new JButton("Return books");
-        btnReturn.setBackground(Color.CYAN);
+        btnReturn.setBackground(Color.GREEN);
         btnReturn.setBounds(60, 895, 139, 25);
         btnReturn.addActionListener(action);
         contentPane.add(btnReturn);
 
         JButton btnRemoveBook = new JButton("Remove Book");
         btnRemoveBook.setBackground(Color.RED);
-        btnRemoveBook.setBounds(870, 895, 139, 25);
+        btnRemoveBook.setBounds(1381, 895, 139, 25);
         btnRemoveBook.addActionListener(action);
         contentPane.add(btnRemoveBook);
 
         JButton btnEdit = new JButton("Edit User");
         btnEdit.setBackground(Color.CYAN);
-        btnEdit.setBounds(427, 846, 127, 25);
+        btnEdit.setBounds(465, 846, 127, 25);
         btnEdit.addActionListener(action);
         contentPane.add(btnEdit);
 
@@ -237,10 +238,10 @@ public class ManagerBook extends JFrame {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Tắt tự động điều chỉnh kích thước cột
         table.setModel(new DefaultTableModel(
                 new Object[][] {
-
+                        {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
                 },
                 new String[] {
-                        "ISBN", "Title", "Author", "Publisher", "Genre", "Page number", "Available Copies", "Available Books", "Status", "Brrower ID", "Email", "Phone Number", "Borrow Date", "Due Date", "Return Date", "Type User", "Fined money"
+                        "ISBN", "Title", "Author", "Publisher", "Genre", "Page number", "Available Copies", "Available Books", "Status", "Brrower ID", "Full Name", "Address", "Email", "Phone Number", "Borrow Date", "Due Date", "Return Date", "Type User", "Fined money"
                 }
         ));
         model = (DefaultTableModel) table.getModel();
@@ -326,7 +327,7 @@ public class ManagerBook extends JFrame {
 
         Box horizontalBox_1_1_1 = Box.createHorizontalBox();
         horizontalBox_1_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-        horizontalBox_1_1_1.setBounds(29, 819, 1183, 146);
+        horizontalBox_1_1_1.setBounds(29, 819, 1528, 146);
         contentPane.add(horizontalBox_1_1_1);
 
 
@@ -343,76 +344,64 @@ public class ManagerBook extends JFrame {
 
         JButton button_exit = new JButton("Exit");
         button_exit.setBackground(Color.PINK);
-        button_exit.setBounds(1021, 846, 139, 25);
+        button_exit.setBounds(1381, 846, 139, 25);
         contentPane.add(button_exit);
         button_exit.addActionListener(action);
 
         JButton btnUpdate = new JButton("Update");
         btnUpdate.setBackground(Color.CYAN);
-        btnUpdate.setBounds(578, 846, 111, 25);
+        btnUpdate.setBounds(664, 846, 111, 25);
         contentPane.add(btnUpdate);
         btnUpdate.addActionListener(action);
 
         JButton btnClear = new JButton("Clear");
         btnClear.setBackground(Color.CYAN);
-        btnClear.setBounds(578, 895, 111, 25);
+        btnClear.setBounds(664, 895, 111, 25);
         btnClear.addActionListener(action);
         contentPane.add(btnClear);
-
-        JLabel lblIsbn_3_1_1 = new JLabel("Status:");
-        lblIsbn_3_1_1.setBounds(60, 425, 70, 15);
-        contentPane.add(lblIsbn_3_1_1);
 
 
         btnSearchUser = new JButton("Search User");
         btnSearchUser.setBackground(Color.CYAN);
-        btnSearchUser.setBounds(427, 895, 127, 25);
+        btnSearchUser.setBounds(465, 895, 127, 25);
         contentPane.add(btnSearchUser);
         btnSearchUser.addActionListener(action);
 
         String[] status = new String[] {"","Available", "Check Out"};
-        comboBox_status = new JComboBox<String>(status);
-        comboBox_status.setBounds(217, 425, 183, 19);
-        contentPane.add(comboBox_status);
 
         JButton btnBookDeleted = new JButton("Book Deleted");
         btnBookDeleted.setBackground(Color.MAGENTA);
-        btnBookDeleted.setBounds(1271, 846, 151, 25);
+        btnBookDeleted.setBounds(1640, 846, 151, 25);
         contentPane.add(btnBookDeleted);
         btnBookDeleted.addActionListener(action);
 
         JButton btnUserDeleted = new JButton("User Deleted");
         btnUserDeleted.setBackground(Color.MAGENTA);
-        btnUserDeleted.setBounds(1271, 895, 151, 25);
+        btnUserDeleted.setBounds(1640, 895, 151, 25);
         contentPane.add(btnUserDeleted);
         btnUserDeleted.addActionListener(action);
 
-        JButton btnSearchDeleted = new JButton("Search Deleted");
-        btnSearchDeleted.setBackground(Color.MAGENTA);
-        btnSearchDeleted.setBounds(1464, 846, 151, 25);
-        contentPane.add(btnSearchDeleted);
-        btnSearchDeleted.addActionListener(action);
-
         Box horizontalBox_1_1_1_1 = Box.createHorizontalBox();
         horizontalBox_1_1_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-        horizontalBox_1_1_1_1.setBounds(1253, 819, 415, 146);
+        horizontalBox_1_1_1_1.setBounds(1599, 819, 230, 146);
         contentPane.add(horizontalBox_1_1_1_1);
 
         btnDisplayUser = new JButton("Display user");
         btnDisplayUser.setBackground(Color.CYAN);
-        btnDisplayUser.setBounds(715, 846, 139, 25);
+        btnDisplayUser.setBounds(869, 846, 139, 25);
         contentPane.add(btnDisplayUser);
         btnDisplayUser.addActionListener(action);
 
         btnDisplayBooks = new JButton("Display books");
         btnDisplayBooks.setBackground(Color.CYAN);
-        btnDisplayBooks.setBounds(715, 895, 139, 25);
+        btnDisplayBooks.setBounds(869, 895, 139, 25);
         contentPane.add(btnDisplayBooks);
 
-        JButton btnArrange = new JButton("Arrange");
-        btnArrange.setBackground(Color.CYAN);
-        btnArrange.setBounds(870, 846, 139, 25);
-        contentPane.add(btnArrange);
+        btnArrange_title = new JButton("Arrange Title");
+        btnArrange_title.setBackground(Color.CYAN);
+        btnArrange_title.setBounds(1105, 846, 193, 25);
+        contentPane.add(btnArrange_title);
+        btnArrange_title.addActionListener(action);
 
         spinner_readingTime_borrowDate = new JSpinner();
         spinner_readingTime_borrowDate.setModel(new SpinnerDateModel(new Date(1728579600000L), new Date(1728579600000L), null, Calendar.DAY_OF_YEAR));
@@ -427,8 +416,14 @@ public class ManagerBook extends JFrame {
         spinner_readingTime_dueDate.setModel(new SpinnerDateModel(new Date(1728579600000L), new Date(1728579600000L), null, Calendar.DAY_OF_YEAR));
         spinner_readingTime_dueDate.setBounds(217, 608, 183, 20);
         contentPane.add(spinner_readingTime_dueDate);
+
+        btnArrangePageNum = new JButton("Arrange Page Number");
+        btnArrangePageNum.setBackground(Color.CYAN);
+        btnArrangePageNum.setBounds(1105, 895, 193, 25);
+        contentPane.add(btnArrangePageNum);
+        btnArrangePageNum.addActionListener(action);
         btnDisplayBooks.addActionListener(action);
-        btnArrange.addActionListener(action);
+
         // Điều chỉnh độ rộng cho các cột
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(170); // Đặt độ rộng của mỗi cột là 150 (có thể điều
@@ -521,7 +516,6 @@ public class ManagerBook extends JFrame {
         page_number_text.setText("");
         spinner_readingTime.setValue(0);
         comboBox_type_user.setSelectedIndex(0);
-        comboBox_status.setSelectedIndex(0);
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setRowCount(0);
 
@@ -552,7 +546,7 @@ public class ManagerBook extends JFrame {
         // Lặp qua danh sách sách và thêm vào model
 
         Object[] rowData = {book.getISBN(), book.getTitle(), book.getAuthors(), book.getPublisher(), book.getGenre(), book.getPageNumber(), book.getNumberBook(), book.getTotalBooksInStock() , book.getStatus(),
-                user.getBorrowerId(), user.getEmail(), user.getPhoneNumber(), user.getBorrowDay(), user.getDueDay(), user.getReturnDay(), user.getTypeUser(), user.getFineMoney()};
+                user.getBorrowerId(),user.getFullName(), user.getAddress(), user.getEmail(), user.getPhoneNumber(), user.getBorrowDay(), user.getDueDay(), user.getReturnDay(), user.getTypeUser(), user.getFineMoney()};
         model.addRow(rowData);  // Thêm hàng vào DefaultTableModel
 
     }
@@ -582,13 +576,25 @@ public class ManagerBook extends JFrame {
         }
     }
 
-    public void updateTableUser(ListUser listUser) {
+    public void updateTableUser(ListUser listUser, ListBook listBook) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setRowCount(0);
+        int num = listUser.getSize();
         ;// Xóa tất cả các hàng hiện có
-        for(LibraryUser user: listUser.getUsers()){
+        for(int i = 0; i<num; i++){
+            LibraryUser user = listUser.getUserByIndex(i);
+            Book book = listBook.getBookByIndex(i);
             Object[] rowData = {
-                    user.getBorrowerId(), user.getEmail(), user.getPhoneNumber(),
+                    book.getISBN(),
+                    book.getTitle(),
+                    book.getAuthors(), // Sửa tên phương thức từ getAuthors thành getAuthor (nếu cần)
+                    book.getPublisher(),
+                    book.getGenre(),
+                    book.getPageNumber(),
+                    book.getNumberBook(), // Hoặc getNumberBook() nếu đó là phương thức đúng
+                    book.getTotalBooksInStock(), // Cần đảm bảo phương thức này tồn tại
+                    book.getStatus(),
+                    user.getBorrowerId(),user.getFullName(), user.getAddress(), user.getEmail(), user.getPhoneNumber(),
                     user.getBorrowDay(), user.getDueDay(), user.getReturnDay(), user.getTypeUser(), user.getFineMoney()
             };
             model.addRow(rowData);

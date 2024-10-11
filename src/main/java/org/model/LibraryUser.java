@@ -52,8 +52,8 @@ public class LibraryUser extends Person {
         return borrowDay;
     }
     public Date setBorrowDay() {
-        this.dueDay = managerBook.getDueDate();
-        return dueDay;
+        this.borrowDay = managerBook.getBorrowDate();
+        return borrowDay;
     }
     public Date getDueDay() {
         return dueDay;

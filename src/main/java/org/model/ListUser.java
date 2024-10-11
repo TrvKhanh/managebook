@@ -15,6 +15,10 @@ public class ListUser {
         return users.isEmpty();
     }
 
+    public int getSize() {
+        return users.size();
+    }
+
     // Thêm một người dùng vào danh sách
     public void addUser(LibraryUser user) {
         users.add(new LibraryUser(user)); // Thêm bản sao của người dùng
@@ -23,6 +27,15 @@ public class ListUser {
     // Trả về danh sách tất cả các người dùng
     public ArrayList<LibraryUser> getUsers() {
         return users; // Trả về danh sách gốc, không tạo bản sao
+    }
+
+    // Lấy một người dùng theo chỉ số
+    public LibraryUser getUserByIndex(int index) {
+        if (index >= 0 && index < users.size()) {
+            return users.get(index);
+        } else {
+            throw new IndexOutOfBoundsException("Chỉ số không hợp lệ: " + index);
+        }
     }
 
     // Phương thức để duyệt và hiển thị thông tin của tất cả người dùng

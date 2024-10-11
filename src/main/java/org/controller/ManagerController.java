@@ -3,6 +3,7 @@ package org.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import java.util.ArrayList;
 
 import org.model.*;
 import org.view.ManagerBook;
@@ -63,16 +64,18 @@ public class ManagerController implements ActionListener {
                 displayUserDeleted();
                 System.out.println("NHap vao nut book delete");
                 break;
-            case "Search Deleted":
-                System.out.println("NHap vao nut book delete");
-                break;
             case "Display user":
+                displayUser();
                 System.out.println("NHap vao nut book delete");
                 break;
             case "Display books":
                 displayBook();
                 break;
-            case "Arrange":
+            case "Arrange Title":
+                ArrangeTilte();
+                break;
+            case "Arrange Page Number":
+                ArrangePageNumber();
                 break;
             case "Clear":
                 clear();
@@ -83,6 +86,34 @@ public class ManagerController implements ActionListener {
             default:
                 break;
         }
+    }
+    public void ArrangeTilte(){
+        String sql = "SELECT * FROM Books";
+        ListBook listbook = getAllBook(sql);
+        listbook.sortBooksAscending();
+        if (listbook != null) {
+            // Cập nhật thông tin lên JTable
+            managerBook.updateTable(listbook);
+        } else {
+            JOptionPane.showMessageDialog(null, "Không tìm thấy sách!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+    }
+    public void ArrangePageNumber(){
+        String sql = "SELECT * FROM Books";
+        ListBook listbook = getAllBook(sql);
+        listbook.sortBooksPageNumber();
+        if (listbook != null) {
+            // Cập nhật thông tin lên JTable
+            managerBook.updateTable(listbook);
+        } else {
+            JOptionPane.showMessageDialog(null, "Không tìm thấy sách!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+    }
+    public void displayUser(){
+        String sql = "SELECT * FROM User";
+        disPlay(sql);
     }
     public void displayBookDeleted(){
         String sql = "SELECT * FROM Books_delete";
@@ -96,11 +127,15 @@ public class ManagerController implements ActionListener {
         }
 
     }
+
     private void displayUserDeleted() {
         String sql = "SELECT * FROM User_delete";
-        ListUser listUser = getAllUser(sql);
+        disPlay(sql);
+    }
 
-        // Kiểm tra nếu danh sách người dùng rỗng
+    public void disPlay(String sql){
+        ListUser listUser = getAllUser(sql);
+        ListBook listbook = new ListBook();
         if (listUser.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Không tìm thấy người dùng!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             return; // Dừng phương thức nếu danh sách người dùng trống
@@ -112,19 +147,16 @@ public class ManagerController implements ActionListener {
             System.out.println(isbn);
 
             Book book = getBookByIsbnDelete(isbn);
+            listbook.addBook(book);
+
             if (book != null) {
-                System.out.println(book);
+                System.out.println(book.getAuthors());
             } else {
                 System.out.println("Không tìm thấy sách với ISBN: " + isbn);
             }
         }
-
-        // Cập nhật bảng người dùng
-        managerBook.updateTableUser(listUser);
+        managerBook.updateTableUser(listUser, listbook);
     }
-
-
-
 
 
     private ListUser getAllUser(String sql) {
@@ -790,13 +822,10 @@ public class ManagerController implements ActionListener {
             // Cập nhật thông tin lên JTable
             managerBook.displayTable_user(book, users);
         } else {
-            JOptionPane.showMessageDialog(null, "Không tìm thấy sách với ISBN này!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Không tìm thấy user với ISBN này!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         }
         System.out.println("Searching book...");
     }
-
-
-
 
 
 
@@ -1121,8 +1150,6 @@ public class ManagerController implements ActionListener {
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
                 JOptionPane.showMessageDialog(null, "Cập nhật thông tin user thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(null, "Không tìm thấy user để cập nhật!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             }
         } catch (SQLException e) {
             e.printStackTrace(); // Handle the error
