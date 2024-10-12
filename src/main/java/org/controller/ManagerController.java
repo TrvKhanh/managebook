@@ -76,7 +76,7 @@ public class ManagerController implements ActionListener {
                 break;
         }
     }
-    //"Borrow books"
+    //Borrow books
     private void borrowBook() {
         // Kiểm tra điều kiện nhập liệu
         boolean isTitleAndAuthorFilled = !this.book.managerBook.getTitle().isEmpty() && !this.book.managerBook.getAuthor().isEmpty();
@@ -165,8 +165,8 @@ public class ManagerController implements ActionListener {
              PreparedStatement pstmtUpdate = conn.prepareStatement(sqlUpdate)) {
 
             // Cập nhật trạng thái vào cơ sở dữ liệu
-            pstmtUpdate.setString(1, book.getStatus()); // Cập nhật trạng thái
-            pstmtUpdate.setString(2, book.getISBN()); // Cập nhật theo ISBN
+            pstmtUpdate.setString(1, book.getStatus());
+            pstmtUpdate.setString(2, book.getISBN());
 
             int rowsAffected = pstmtUpdate.executeUpdate();
 
@@ -180,11 +180,11 @@ public class ManagerController implements ActionListener {
             }
         } catch (SQLException e) {
             // Hiển thị thông báo lỗi khi xảy ra ngoại lệ
-            e.printStackTrace(); // Hoặc bạn có thể sử dụng JOptionPane để thông báo lỗi cho người dùng
+            e.printStackTrace();
         }
     }
 
-    //"Search book.   ===>>> xong
+    //"Search book.
     private void searchBook() {
         int count = 0;
 
@@ -224,7 +224,6 @@ public class ManagerController implements ActionListener {
         }
     }
 
-
     //"Return books"
     private void returnBook() {
         int id = 0;
@@ -238,7 +237,6 @@ public class ManagerController implements ActionListener {
             JOptionPane.showMessageDialog(null, "ID phải là một số hợp lệ!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
         // Nếu có giá trị trong ô Borrower ID, đảm bảo không có thông tin nào khác được nhập
         if (!this.user.managerBook.getFullName().isEmpty() ||
                 !this.user.managerBook.getEmail().isEmpty() ||
@@ -258,9 +256,7 @@ public class ManagerController implements ActionListener {
             return;
         }
 
-
         saveUser_delelted(users);
-
 
         String deleteQuery = "DELETE FROM Users WHERE id = ?";
         try (Connection conn = SQLiteConnection.getConnection();
@@ -329,10 +325,6 @@ public class ManagerController implements ActionListener {
             updateStatus(book);
         }
     }
-
-
-
-
     //Remove book
     private void removeBook() {
         if (this.book.managerBook.getISBN().isEmpty()) {
@@ -917,7 +909,6 @@ public class ManagerController implements ActionListener {
         }
         return book;
     }
-
 
     private Book getBookByTitleAndAuthor(String title, String author) {
         String sql = "SELECT * FROM Books WHERE title = ? AND author = ?";
