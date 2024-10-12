@@ -13,16 +13,16 @@ public class Book {
     private int totalBooksInStock;
     private String genre;
     public ManagerBook managerBook;
-    public Book(String ISBN, int numberBook, String authors, String title, String publisher, int pageNumber, String genre, ManagerBook managerBook ) {
+    public Book(String ISBN, int numberBook, int totalBooksInStock, String status, String authors, String title, String publisher, int pageNumber, String genre, ManagerBook managerBook ) {
         super();
         this.ISBN = ISBN;
         this.numberBook = numberBook;
         this.pageNumber = pageNumber;
-        this.status = "Available";
+        this.status = status;
         this.authors = authors;
         this.title = title;
         this.publisher = publisher;
-        this.totalBooksInStock = numberBook;
+        this.totalBooksInStock = totalBooksInStock;
         this.genre = genre;
         this.managerBook = managerBook;
     }
@@ -31,7 +31,7 @@ public class Book {
         this.ISBN = book.getISBN();
         this.numberBook = book.getNumberBook();
         this.pageNumber = book.getPageNumber();
-        this.status = "Available";
+        this.status = book.getStatus();
         this.authors = book.getAuthors();
         this.title = book.getTitle();
         this.publisher = book.getPublisher();
@@ -125,5 +125,8 @@ public class Book {
         this.totalBooksInStock = this.numberBook;
     }
 
+    public void returnBook(){
+        this.totalBooksInStock++;
+    }
 
 }

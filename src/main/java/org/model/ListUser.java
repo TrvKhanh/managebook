@@ -1,8 +1,9 @@
 package org.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class ListUser {
+public class ListUser implements Iterable<LibraryUser> {
     private ArrayList<LibraryUser> users;
 
     // Khởi tạo danh sách người dùng
@@ -36,6 +37,12 @@ public class ListUser {
         } else {
             throw new IndexOutOfBoundsException("Chỉ số không hợp lệ: " + index);
         }
+    }
+
+    // Triển khai phương thức iterator để sử dụng for-each
+    @Override
+    public Iterator<LibraryUser> iterator() {
+        return users.iterator();
     }
 
     // Phương thức để duyệt và hiển thị thông tin của tất cả người dùng

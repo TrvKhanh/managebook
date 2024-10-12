@@ -17,10 +17,7 @@ import javax.swing.table.DefaultTableModel;
 
 import jdk.internal.icu.util.CodePointMap;
 import org.controller.ManagerController;
-import org.model.Book;
-import org.model.LibraryUser;
-import org.model.ListBook;
-import org.model.ListUser;
+import org.model.*;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -32,7 +29,6 @@ import java.util.Calendar;
 public class ManagerBook extends JFrame {
 
     private static final long serialVersionUID = 1L;
-    private final JButton btnSearchUser;
     private final JButton btnDisplayBooks;
     private final JButton btnDisplayUser;
     private JPanel contentPane;
@@ -171,15 +167,9 @@ public class ManagerBook extends JFrame {
 
         JButton btnRemoveBook = new JButton("Remove Book");
         btnRemoveBook.setBackground(Color.RED);
-        btnRemoveBook.setBounds(1381, 895, 139, 25);
+        btnRemoveBook.setBounds(1066, 895, 139, 25);
         btnRemoveBook.addActionListener(action);
         contentPane.add(btnRemoveBook);
-
-        JButton btnEdit = new JButton("Edit User");
-        btnEdit.setBackground(Color.CYAN);
-        btnEdit.setBounds(465, 846, 127, 25);
-        btnEdit.addActionListener(action);
-        contentPane.add(btnEdit);
 
         nameBrrower_text = new JTextField();
         nameBrrower_text.setColumns(10);
@@ -238,7 +228,6 @@ public class ManagerBook extends JFrame {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Tắt tự động điều chỉnh kích thước cột
         table.setModel(new DefaultTableModel(
                 new Object[][] {
-                        {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
                 },
                 new String[] {
                         "ISBN", "Title", "Author", "Publisher", "Genre", "Page number", "Available Copies", "Available Books", "Status", "Brrower ID", "Full Name", "Address", "Email", "Phone Number", "Borrow Date", "Due Date", "Return Date", "Type User", "Fined money"
@@ -327,7 +316,7 @@ public class ManagerBook extends JFrame {
 
         Box horizontalBox_1_1_1 = Box.createHorizontalBox();
         horizontalBox_1_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-        horizontalBox_1_1_1.setBounds(29, 819, 1528, 146);
+        horizontalBox_1_1_1.setBounds(36, 811, 1242, 146);
         contentPane.add(horizontalBox_1_1_1);
 
 
@@ -344,62 +333,38 @@ public class ManagerBook extends JFrame {
 
         JButton button_exit = new JButton("Exit");
         button_exit.setBackground(Color.PINK);
-        button_exit.setBounds(1381, 846, 139, 25);
+        button_exit.setBounds(1066, 846, 139, 25);
         contentPane.add(button_exit);
         button_exit.addActionListener(action);
 
-        JButton btnUpdate = new JButton("Update");
-        btnUpdate.setBackground(Color.CYAN);
-        btnUpdate.setBounds(664, 846, 111, 25);
-        contentPane.add(btnUpdate);
-        btnUpdate.addActionListener(action);
-
         JButton btnClear = new JButton("Clear");
         btnClear.setBackground(Color.CYAN);
-        btnClear.setBounds(664, 895, 111, 25);
+        btnClear.setBounds(886, 846, 151, 25);
         btnClear.addActionListener(action);
         contentPane.add(btnClear);
-
-
-        btnSearchUser = new JButton("Search User");
-        btnSearchUser.setBackground(Color.CYAN);
-        btnSearchUser.setBounds(465, 895, 127, 25);
-        contentPane.add(btnSearchUser);
-        btnSearchUser.addActionListener(action);
 
         String[] status = new String[] {"","Available", "Check Out"};
 
         JButton btnBookDeleted = new JButton("Book Deleted");
         btnBookDeleted.setBackground(Color.MAGENTA);
-        btnBookDeleted.setBounds(1640, 846, 151, 25);
+        btnBookDeleted.setBounds(886, 895, 151, 25);
         contentPane.add(btnBookDeleted);
         btnBookDeleted.addActionListener(action);
 
-        JButton btnUserDeleted = new JButton("User Deleted");
-        btnUserDeleted.setBackground(Color.MAGENTA);
-        btnUserDeleted.setBounds(1640, 895, 151, 25);
-        contentPane.add(btnUserDeleted);
-        btnUserDeleted.addActionListener(action);
-
-        Box horizontalBox_1_1_1_1 = Box.createHorizontalBox();
-        horizontalBox_1_1_1_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-        horizontalBox_1_1_1_1.setBounds(1599, 819, 230, 146);
-        contentPane.add(horizontalBox_1_1_1_1);
-
         btnDisplayUser = new JButton("Display user");
         btnDisplayUser.setBackground(Color.CYAN);
-        btnDisplayUser.setBounds(869, 846, 139, 25);
+        btnDisplayUser.setBounds(462, 846, 139, 25);
         contentPane.add(btnDisplayUser);
         btnDisplayUser.addActionListener(action);
 
         btnDisplayBooks = new JButton("Display books");
         btnDisplayBooks.setBackground(Color.CYAN);
-        btnDisplayBooks.setBounds(869, 895, 139, 25);
+        btnDisplayBooks.setBounds(462, 895, 139, 25);
         contentPane.add(btnDisplayBooks);
 
         btnArrange_title = new JButton("Arrange Title");
         btnArrange_title.setBackground(Color.CYAN);
-        btnArrange_title.setBounds(1105, 846, 193, 25);
+        btnArrange_title.setBounds(636, 846, 193, 25);
         contentPane.add(btnArrange_title);
         btnArrange_title.addActionListener(action);
 
@@ -419,7 +384,7 @@ public class ManagerBook extends JFrame {
 
         btnArrangePageNum = new JButton("Arrange Page Number");
         btnArrangePageNum.setBackground(Color.CYAN);
-        btnArrangePageNum.setBounds(1105, 895, 193, 25);
+        btnArrangePageNum.setBounds(636, 895, 193, 25);
         contentPane.add(btnArrangePageNum);
         btnArrangePageNum.addActionListener(action);
         btnDisplayBooks.addActionListener(action);
@@ -550,6 +515,28 @@ public class ManagerBook extends JFrame {
         model.addRow(rowData);  // Thêm hàng vào DefaultTableModel
 
     }
+
+    public void displayTables_user(LibraryUser user) {
+        // Giả sử bạn đã tạo một DefaultTableModel trước đó
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+
+        // Không cần xóa tất cả các hàng hiện có trong vòng lặp
+        Object[] rowData = {
+                "", "", "", "", "", "", "", "", "",
+                user.getBorrowerId(),
+                user.getFullName(),
+                user.getAddress(),
+                user.getEmail(),
+                user.getPhoneNumber(),
+                user.getBorrowDay(),
+                user.getDueDay(),
+                user.getReturnDay(),
+                user.getTypeUser(),
+                user.getFineMoney()
+        };
+        model.addRow(rowData);  // Thêm hàng vào DefaultTableModel
+    }
+
 
 
     public void updateTable(ListBook books) {

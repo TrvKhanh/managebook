@@ -21,7 +21,7 @@ public class ManagerController implements ActionListener {
     public ManagerController(ManagerBook managerBook, ListBook listBooks) {
         this.managerBook = managerBook;
         this.book = new Book(
-                "", 0, "","","",0,"", this.managerBook);
+                "", 0,0,"", "","","",0,"", this.managerBook);
         this.user = new LibraryUser(null, null, null, null,0,null,null, null,0, null, this.managerBook, "",0);
         this.listBooks = listBooks;
 
@@ -45,26 +45,15 @@ public class ManagerController implements ActionListener {
             case "Remove Book":
                 removeBook();
                 break;
-            case "Edit User":
-                editUser();
-                break;
             case "Add Book":
                 insertBook();
                 break;
-            case "Update":
-                updateUserInfor();
-                break;
-            case "Search User":
-                searchUser();
-                break;
             case "Book Deleted":
+                clear();
                 displayBookDeleted();
                 break;
-            case "User Deleted":
-                displayUserDeleted();
-                System.out.println("NHap vao nut book delete");
-                break;
             case "Display user":
+                clear();
                 displayUser();
                 System.out.println("NHap vao nut book delete");
                 break;
@@ -87,159 +76,115 @@ public class ManagerController implements ActionListener {
                 break;
         }
     }
-    public void ArrangeTilte(){
-        String sql = "SELECT * FROM Books";
-        ListBook listbook = getAllBook(sql);
-        listbook.sortBooksAscending();
-        if (listbook != null) {
-            // Cập nhật thông tin lên JTable
-            managerBook.updateTable(listbook);
-        } else {
-            JOptionPane.showMessageDialog(null, "Không tìm thấy sách!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-    }
-    public void ArrangePageNumber(){
-        String sql = "SELECT * FROM Books";
-        ListBook listbook = getAllBook(sql);
-        listbook.sortBooksPageNumber();
-        if (listbook != null) {
-            // Cập nhật thông tin lên JTable
-            managerBook.updateTable(listbook);
-        } else {
-            JOptionPane.showMessageDialog(null, "Không tìm thấy sách!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-    }
-    public void displayUser(){
-        String sql = "SELECT * FROM User";
-        disPlay(sql);
-    }
-    public void displayBookDeleted(){
-        String sql = "SELECT * FROM Books_delete";
-        ListBook listbook = getAllBook(sql);
-        if (listbook != null) {
-            // Cập nhật thông tin lên JTable
-            managerBook.updateTable(listbook);
-        } else {
-            JOptionPane.showMessageDialog(null, "Không tìm thấy sách!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-
-    }
-
-    private void displayUserDeleted() {
-        String sql = "SELECT * FROM User_delete";
-        disPlay(sql);
-    }
-
-    public void disPlay(String sql){
-        ListUser listUser = getAllUser(sql);
-        ListBook listbook = new ListBook();
-        if (listUser.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Không tìm thấy người dùng!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            return; // Dừng phương thức nếu danh sách người dùng trống
-        }
-
-        // Duyệt qua danh sách người dùng
-        for (LibraryUser user : listUser.getUsers()) {
-            String isbn = user.getIsbn();
-            System.out.println(isbn);
-
-            Book book = getBookByIsbnDelete(isbn);
-            listbook.addBook(book);
-
-            if (book != null) {
-                System.out.println(book.getAuthors());
-            } else {
-                System.out.println("Không tìm thấy sách với ISBN: " + isbn);
-            }
-        }
-        managerBook.updateTableUser(listUser, listbook);
-    }
-
-
-    private ListUser getAllUser(String sql) {
-        ListUser listUser = new ListUser(); // Tạo danh sách để lưu trữ các user tìm thấy
-
-        try (Connection conn = SQLiteConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            ResultSet rs = pstmt.executeQuery(); // Thực hiện truy vấn SQL
-
-            // Duyệt qua tất cả kết quả truy vấn và tạo đối tượng LibraryUser từ kết quả
-            while (rs.next()) {
-                LibraryUser user = new LibraryUser(
-                        rs.getString("fullname"),          // fullName
-                        rs.getString("address"),           // address
-                        rs.getString("phonenumber"),       // phoneNumber
-                        rs.getString("email"),             // email
-                        rs.getInt("id"),                   // borrowerId
-                        rs.getDate("borrow_date"),       // borrowDay
-                        rs.getDate("due_date"),          // dueDay
-                        rs.getDate("return_date"),       // returnDay
-                        rs.getInt("readingTime"),          // readingTime
-                        rs.getString("type_user"),         // typeUser
-                        this.managerBook,                  // managerBook (Thay đổi nếu cần)
-                        rs.getString("isbn"),              // isbn
-                        rs.getInt("find_money")            // fineMoney (Nếu có lỗi, sửa thành "fine_money")
-                );
-                listUser.addUser(user); // Thêm user vào danh sách
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Lỗi khi truy vấn user: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
-        return listUser; // Trả về danh sách user tìm thấy (có thể rỗng nếu không tìm thấy user)
-    }
-
-    //"Borrow books" ===========================================================================>>>>>>>>>>>>>>>>>
+    //"Borrow books"
     private void borrowBook() {
-        Book currentBook = null;
-
         // Kiểm tra điều kiện nhập liệu
         boolean isTitleAndAuthorFilled = !this.book.managerBook.getTitle().isEmpty() && !this.book.managerBook.getAuthor().isEmpty();
         boolean isIsbnFilled = !this.book.managerBook.getISBN().isEmpty();
 
         if (!(isTitleAndAuthorFilled || isIsbnFilled)) {
-            // Nếu không nhập đủ thông tin theo yêu cầu, hiển thị thông báo
             JOptionPane.showMessageDialog(null, "Vui lòng nhập tên sách và tên tác giả hoặc chỉ nhập mã ISBN!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return ; // Dừng hàm nếu thông tin không hợp lệ
+            return; // Dừng hàm nếu thông tin không hợp lệ
         }
+
+
+        // Lấy thông tin người dùng
         LibraryUser currentUser = setUser();
-        String sql = "SELECT * FROM Books WHERE ISBN = ?";
-        // Tìm sách theo ISBN hoặc theo tên và tác giả
-        if (isIsbnFilled) {
-            currentBook = getBookByIsbn(this.book.managerBook.getISBN(), sql);
-        } else if (isTitleAndAuthorFilled) {
-            currentBook = getBookByTitleAndAuthor(this.book.managerBook.getTitle(), this.book.managerBook.getAuthor());
+        if (currentUser == null) {
+            JOptionPane.showMessageDialog(null, "Thông tin người dùng không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return; // Thoát nếu thông tin người dùng không hợp lệ
         }
+
+        // Tìm sách
+        Book currentBook = isIsbnFilled ? getBookByIsbn(this.book.managerBook.getISBN(), "SELECT * FROM Books WHERE ISBN = ?")
+                : getBookByTitleAndAuthor(this.book.managerBook.getTitle(), this.book.managerBook.getAuthor());
 
         if (currentBook == null) {
             JOptionPane.showMessageDialog(null, "Không tìm thấy sách với thông tin đã nhập!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return; // Dừng hàm nếu không tìm thấy sách
         }
 
-        // Kiểm tra số lượng sách có sẵn trước khi mượn
-        if (currentBook.getTotalBooksInStock() <= 0) {
-            JOptionPane.showMessageDialog(null, "Sách hiện tại đã hết, không thể cho mượn!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-            return; // Không cho phép mượn nếu không còn sách
-        }
-
-        if (currentUser == null) {
-            return; // Nếu có thông tin người dùng không hợp lệ, thoát khỏi phương thức
-        }
-        // Dự đoán giá trị
+        String status = getStatusByIsbn(currentBook.getISBN());
+        System.out.println(status);
+        // Dự đoán khả năng trả sách đúng hạn
         double valuePredict = model_predict.predict(currentBook.getPageNumber(), currentUser.getReadingTime());
         int value = (int) (valuePredict * 100);
-        JOptionPane.showMessageDialog(null, "Khả năng trả sách đúng hạn là "+value+"%", "Thông báo", JOptionPane.WARNING_MESSAGE);
-        // Gọi phương thức để hiển thị giao diện
-        brorwerBook(currentBook, currentUser);
+        JOptionPane.showMessageDialog(null, "Khả năng trả sách đúng hạn là " + value + "%", "Thông báo", JOptionPane.WARNING_MESSAGE);
 
-        currentBook.updateNumberBook(); // Giảm số lượng sách đi 1
+        // Gọi phương thức để mượn sách
+
+        saveUsers(currentUser);
+
+        // Cập nhật số lượng sách và trạng thái
+        currentBook.updateNumberBook();
         updateTotalBook(currentBook, currentBook.getISBN());
         updateStatus(currentBook);
     }
 
-    //"Search Book"======================================================================================
+    public void updateTotalBook(Book book, String isbn) {
+        String sqlUpdate = "UPDATE Books SET available_books = ? WHERE ISBN = ?";
+
+        if (book == null) {
+            JOptionPane.showMessageDialog(null, "Book không hợp lệ hoặc không tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try (Connection conn = SQLiteConnection.getConnection();
+             PreparedStatement pstmtUpdate = conn.prepareStatement(sqlUpdate)) {
+            // Cập nhật số lượng vào cơ sở dữ liệu
+            pstmtUpdate.setInt(1, book.getTotalBooksInStock());
+            pstmtUpdate.setString(2, isbn);
+            int rowsAffected = pstmtUpdate.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Cap nhat thanh cong!!");
+            } else {
+                // Không tìm thấy sách với ISBN trong cơ sở dữ liệu
+                JOptionPane.showMessageDialog(null, "Không tìm thấy sách với ISBN: " + isbn, "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        } catch (SQLException e) {
+            // Hiển thị thông báo lỗi khi xảy ra ngoại lệ
+            JOptionPane.showMessageDialog(null, "Lỗi khi cập nhật số lượng sách: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    }
+
+    public void updateStatus(Book book) {
+        String sqlUpdate = "UPDATE Books SET status = ? WHERE ISBN = ?";
+
+        if (book == null) {
+            JOptionPane.showMessageDialog(null, "Book không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return; // Thoát phương thức nếu book null
+        }
+
+        if (book.getTotalBooksInStock() == 0) {
+            book.setStatus();
+        }
+
+        try (Connection conn = SQLiteConnection.getConnection();
+             PreparedStatement pstmtUpdate = conn.prepareStatement(sqlUpdate)) {
+
+            // Cập nhật trạng thái vào cơ sở dữ liệu
+            pstmtUpdate.setString(1, book.getStatus()); // Cập nhật trạng thái
+            pstmtUpdate.setString(2, book.getISBN()); // Cập nhật theo ISBN
+
+            int rowsAffected = pstmtUpdate.executeUpdate();
+
+            if (rowsAffected > 0) {
+                // Hiển thị thông báo khi cập nhật thành công
+                System.out.println("Cap nhat thanh cong!!");
+            } else {
+                // Không tìm thấy sách với ISBN trong cơ sở dữ liệu
+                JOptionPane.showMessageDialog(null, "Không tìm thấy sách với ISBN: " + book.getISBN(), "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        } catch (SQLException e) {
+            // Hiển thị thông báo lỗi khi xảy ra ngoại lệ
+            e.printStackTrace(); // Hoặc bạn có thể sử dụng JOptionPane để thông báo lỗi cho người dùng
+        }
+    }
+
+    //"Search book.   ===>>> xong
     private void searchBook() {
         int count = 0;
 
@@ -278,7 +223,9 @@ public class ManagerController implements ActionListener {
             }
         }
     }
-    //"Return books"========================================================================
+
+
+    //"Return books"
     private void returnBook() {
         int id = 0;
         if (this.user.managerBook.getBorrowerId().isEmpty()) {
@@ -311,9 +258,11 @@ public class ManagerController implements ActionListener {
             return;
         }
 
-        saveUser_delelted(users.getIsbn(), users);
 
-        String deleteQuery = "DELETE FROM User WHERE id = ?";
+        saveUser_delelted(users);
+
+
+        String deleteQuery = "DELETE FROM Users WHERE id = ?";
         try (Connection conn = SQLiteConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
             pstmt.setInt(1, id);
@@ -327,14 +276,64 @@ public class ManagerController implements ActionListener {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Lỗi khi trả sách: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+
+        Book book = new Book("",0,0,"","","","",0,"",managerBook);
         String sql = "SELECT * FROM Books WHERE ISBN = ?";
-        Book book = getBookByIsbn(users.getIsbn(), sql);
-        updateTotalBook(book, book.getISBN());
-        updateStatus(book);
+        try (Connection conn = SQLiteConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, users.getIsbn());
+            ResultSet rs = pstmt.executeQuery();
 
+            // Nếu có kết quả, tạo đối tượng Book từ kết quả truy vấn
+            if (rs.next()) {
+                book = new Book(
+                        rs.getString("ISBN"),
+                        rs.getInt("available_copies"),
+                        rs.getInt("available_books"),
+                        rs.getString("status"),
+                        rs.getString("author"),
+                        rs.getString("title"),
+                        rs.getString("publisher"),
+                        rs.getInt("page_number"),
+                        rs.getString("genre"),
+                        this.managerBook);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Lỗi khi truy vấn sách: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+        if (book == null) {
+            String sqll = "INSERT INTO Books(title, author, publisher, genre, available_copies, page_number, status, available_books, ISBN) VALUES(?,?,?,?,?,?,?,?,?)";
+            Book books = getBookByIsbn(users.getIsbn(), sqll);
+            try (Connection conn = SQLiteConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
+                // Sử dụng đối tượng books vừa tạo để thêm vào cơ sở dữ liệu
+                pstmt.setString(1, books.getTitle());
+                pstmt.setString(2, books.getAuthors());
+                pstmt.setString(3, books.getPublisher());
+                pstmt.setString(4, books.getGenre());
+                pstmt.setInt(5, books.getNumberBook());
+                pstmt.setInt(6, books.getPageNumber());
+                pstmt.setString(7, books.getStatus());
+                pstmt.setInt(8, books.getTotalBooksInStock());
+                pstmt.setString(9, books.getISBN());
+                pstmt.executeUpdate();
+
+                JOptionPane.showMessageDialog(null, "Thêm sách thành công!!", "Thông báo!!", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+            book.returnBook();
+            updateTotalBook(book, book.getISBN());
+            updateStatus(book);
+        }
     }
-    //"Remove Book"=================================================================
+
+
+
+
+    //Remove book
     private void removeBook() {
         if (this.book.managerBook.getISBN().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Không được để trống ISBN!", "Alert", JOptionPane.WARNING_MESSAGE);
@@ -360,80 +359,29 @@ public class ManagerController implements ActionListener {
             JOptionPane.showMessageDialog(null, "Không tìm thấy sách với ISBN: " + this.book.managerBook.getISBN(), "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
-        removeAndAddBookToDeleted(book_find); // Gọi phương thức để xử lý sách đã xóa
+        System.out.print(book_find.getISBN());
 
         String deleteQuery = "DELETE FROM Books WHERE ISBN = ?";
-        try {
-            listBooks.removeBook(this.book.managerBook.getISBN());
+        try (Connection conn = SQLiteConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
 
-            try (Connection conn = SQLiteConnection.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
-                pstmt.setString(1, this.book.managerBook.getISBN());
-                int rowsAffected = pstmt.executeUpdate();
-
-                if (rowsAffected > 0) {
-                    JOptionPane.showMessageDialog(null, "Xóa sách thành công!", "Thông báo!", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Không thể xóa sách!", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
-                }
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(null, "Lỗi khi xóa sách: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            String isbn = this.book.managerBook.getISBN();
+            if (isbn == null || isbn.trim().isEmpty()) {
+                throw new IllegalArgumentException("ISBN không được để trống!");
             }
+
+            pstmt.setString(1, isbn);
+            int rowsAffected = pstmt.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Xóa sách thành công!", "Thông báo!", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Lỗi khi xóa sách: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
         }
+        saveBook_delelted(book_find);
     }
-
-    private void removeAndAddBookToDeleted(Book book) {
-        // Xóa sách có ISBN tương ứng khỏi bảng Books_delete nếu tồn tại
-        String deleteFromDeletedQuery = "DELETE FROM Books_delete WHERE ISBN = ?";
-        try (Connection conn = SQLiteConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(deleteFromDeletedQuery)) {
-            pstmt.setString(1, book.getISBN());
-            pstmt.executeUpdate(); // Thực hiện xóa
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Lỗi khi xóa sách khỏi danh sách đã xóa: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
-
-        // Thêm sách vào bảng Books_delete
-        saveBook_delelted(book); // Giả định rằng phương thức này đã tồn tại và hoạt động bình thường
-    }
-
-
-
-    // "Edit User"==============================================================>>>>>>>>>>>>>>>>>>>>>
-    public void updateUserInfor(){
-        editUser();
-
-    }
-    public void editUser() {
-        int id = 0;
-        if (this.user.managerBook.getBorrowerId().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Vui lòng nhập Borrower ID!", "Thông báo", JOptionPane.ERROR_MESSAGE);
-            return; // Kết thúc phương thức nếu không có thông tin nào được nhập
-        }
-        try {
-            id = Integer.parseInt(this.user.managerBook.getBorrowerId());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "ID phải là một số hợp lệ!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-
-
-        // Gọi phương thức để tìm sách và hiển thị thông tin
-        LibraryUser user = getUserById(id); // Giả sử getBookByISBN là phương thức đã tạo trước đó
-
-        if (user != null) {
-            // Hiển thị thông tin sách lên các JTextField
-            this.book.managerBook.setEditUser(user);
-            updateUserDatabase(user);
-        } else {
-            return;
-        }
-    }
-    //ham them sach=======================================================================================
+    //Add book
     private void insertBook() {
         Book books = setBook();
 
@@ -474,14 +422,24 @@ public class ManagerController implements ActionListener {
         }
 
     }
-    //"Search User"====================================================================================
-    public void searchUser(){
-        searchUserId();
+    //Book Deleted
+    public void displayBookDeleted(){
+        String sql = "SELECT * FROM Books_deleted";
+        ListBook listbook = getAllBook(sql);
+        if (listbook != null) {
+            // Cập nhật thông tin lên JTable
+            managerBook.updateTable(listbook);
+        } else {
+            JOptionPane.showMessageDialog(null, "Không tìm thấy sách!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
     }
-    //"Book Deleted"===================================================================================
-    //"displayBookDeleted "
-
-
+    //Display user
+    public void displayUser(){
+        disPlays();
+    }
+    //Display books
     public void displayBook(){
         String sql = "SELECT * FROM Books";
         ListBook listbook = getAllBook(sql);
@@ -493,6 +451,109 @@ public class ManagerController implements ActionListener {
             return;
         }
     }
+    //Arrange Title
+    public void ArrangeTilte(){
+        String sql = "SELECT * FROM Books";
+        ListBook listbook = getAllBook(sql);
+        listbook.sortBooksAscending();
+        if (listbook != null) {
+            // Cập nhật thông tin lên JTable
+            managerBook.updateTable(listbook);
+        } else {
+            JOptionPane.showMessageDialog(null, "Không tìm thấy sách!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+    }
+    //Arrange Page Number
+    public void ArrangePageNumber(){
+        String sql = "SELECT * FROM Books";
+        ListBook listbook = getAllBook(sql);
+        listbook.sortBooksPageNumber();
+        if (listbook != null) {
+            // Cập nhật thông tin lên JTable
+            managerBook.updateTable(listbook);
+        } else {
+            JOptionPane.showMessageDialog(null, "Không tìm thấy sách!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+    }
+    //Clear
+    private void clear() {
+        managerBook.clear();
+    }
+    //Exit
+    public void exit(){
+        managerBook.dispose();
+        System.exit(0);
+    }
+
+    public void disPlays(){
+
+        ListUser users = new ListUser();
+        LibraryUser user = null;
+
+        String sql = "SELECT * FROM Users";
+        try (Connection conn = SQLiteConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery(); // Thực hiện truy vấn SQL
+
+            // Duyệt qua tất cả kết quả truy vấn và tạo đối tượng LibraryUser từ kết quả
+            while (rs.next()) {
+                user = new LibraryUser(
+                        rs.getString("fullname"),          // fullName
+                        rs.getString("address"),           // address
+                        rs.getString("phonenumber"),       // phoneNumber
+                        rs.getString("email"),             // email
+                        rs.getInt("id"),                   // borrowerId
+                        rs.getDate("borrow_date"),       // borrowDay
+                        rs.getDate("due_date"),          // dueDay
+                        rs.getDate("return_date"),       // returnDay
+                        rs.getInt("readingTime"),          // readingTime
+                        rs.getString("type_user"),         // typeUser
+                        this.managerBook,                  // managerBook (Thay đổi nếu cần)
+                        rs.getString("isbn"),              // isbn
+                        rs.getInt("find_money")            // fineMoney (Nếu có lỗi, sửa thành "fine_money")
+                );
+                users.addUser(user);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Lỗi khi truy vấn user: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+        if (user == null) {
+            JOptionPane.showMessageDialog(null, "Không tìm thấy người dùng!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return; // Dừng phương thức nếu danh sách người dùng trống
+        }
+        for(LibraryUser use_temp: users){
+            managerBook.displayTables_user(use_temp);
+        }
+    }
+
+
+    public String getStatusByIsbn(String isbn) {
+        String sql = "SELECT status FROM Books WHERE ISBN = ?";
+        String status = null;
+
+        try (Connection conn = SQLiteConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Thiết lập giá trị ISBN vào câu lệnh SQL
+            pstmt.setString(1, isbn);
+
+            // Thực hiện truy vấn
+            ResultSet rs = pstmt.executeQuery();
+
+            // Lấy giá trị của cột status từ kết quả truy vấn
+            if (rs.next()) {
+                status = rs.getString("status");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Xử lý ngoại lệ nếu có
+        }
+
+        return status; // Trả về giá trị của cột status
+    }
+
+
 
     private ListBook getAllBook(String sql) {
         // Câu lệnh SQL để lấy tất cả các sách
@@ -507,6 +568,8 @@ public class ManagerController implements ActionListener {
                 Book book = new Book(
                         rs.getString("ISBN"),
                         rs.getInt("available_copies"),
+                        rs.getInt("available_books"),
+                        rs.getString("status"),
                         rs.getString("author"),
                         rs.getString("title"),
                         rs.getString("publisher"),
@@ -522,45 +585,11 @@ public class ManagerController implements ActionListener {
     }
 
 
-    public void updateStatus(Book book) {
-        String sqlUpdate = "UPDATE Books SET status = ? WHERE ISBN = ?";
 
-        if (book == null) {
-            JOptionPane.showMessageDialog(null, "Book không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return; // Thoát phương thức nếu book null
-        }
+    private void saveUser_delelted(LibraryUser user){
+        String sql = "INSERT INTO Users_deleted(id, fullname, address, phonenumber, email, isbn, borrow_date, due_date, readingTime, type_user, find_money,return_date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
 
-        if (book.getTotalBooksInStock() == 0) {
-            book.setStatus();
-        }
 
-        try (Connection conn = SQLiteConnection.getConnection();
-             PreparedStatement pstmtUpdate = conn.prepareStatement(sqlUpdate)) {
-
-            // Cập nhật trạng thái vào cơ sở dữ liệu
-            pstmtUpdate.setString(1, book.getStatus()); // Cập nhật trạng thái
-            pstmtUpdate.setString(2, book.getISBN()); // Cập nhật theo ISBN
-
-            int rowsAffected = pstmtUpdate.executeUpdate();
-
-            if (rowsAffected > 0) {
-                // Hiển thị thông báo khi cập nhật thành công
-                System.out.println("Cap nhat thanh cong!!");
-            } else {
-                // Không tìm thấy sách với ISBN trong cơ sở dữ liệu
-                JOptionPane.showMessageDialog(null, "Không tìm thấy sách với ISBN: " + book.getISBN(), "Thông báo", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-        } catch (SQLException e) {
-            // Hiển thị thông báo lỗi khi xảy ra ngoại lệ
-            e.printStackTrace(); // Hoặc bạn có thể sử dụng JOptionPane để thông báo lỗi cho người dùng
-        }
-    }
-
-    private void saveUser_delelted(String isbn, LibraryUser user){
-        String sql = "INSERT INTO User_delete(id, fullname, address, phonenumber, email, isbn, borrow_date, due_date, readingTime, type_user) VALUES(?,?,?,?,?,?,?,?,?,?)";
-
-        user.setIsbn(isbn);
         try (Connection conn = SQLiteConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, user.getBorrowerId());
@@ -573,6 +602,8 @@ public class ManagerController implements ActionListener {
             pstmt.setDate(8,  user.setDueDay());
             pstmt.setInt(9, user.getReadingTime());
             pstmt.setString(10, user.getTypeUser());
+            pstmt.setDate(11, user.getReturnDay());
+            pstmt.setString(12, user.getTypeUser());
             pstmt.executeUpdate();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -580,7 +611,7 @@ public class ManagerController implements ActionListener {
     }
 
     private void saveBook_delelted(Book book){
-        String sql = "INSERT INTO Books_delete(title, author, publisher, genre, available_copies, page_number, status, available_books, ISBN) VALUES(?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO Books_deleted(title, author, publisher, genre, available_copies, page_number, status, available_books,ISBN) VALUES(?,?,?,?,?,?,?,?,?)";
         try (Connection conn = SQLiteConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, book.getTitle());
@@ -599,28 +630,29 @@ public class ManagerController implements ActionListener {
         }
     }
 
-    private void brorwerBook(Book books, LibraryUser user){
-        String sql = "INSERT INTO User(id, fullname, address, phonenumber, email, isbn, borrow_date, due_date, readingTime, type_user) VALUES(?,?,?,?,?,?,?,?,?,?)";
+   private void saveUsers(LibraryUser user){
+       String sql = "INSERT INTO Users(id, fullname, address, phonenumber, email, isbn, borrow_date, due_date, readingTime, type_user, find_money,return_date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
 
-        user.setIsbn(books.getISBN());
-        try (Connection conn = SQLiteConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, user.getBorrowerId());
-            pstmt.setString(2, user.getFullName());
-            pstmt.setString(3, user.getAddress());
-            pstmt.setString(4, user.getPhoneNumber());
-            pstmt.setString(5, user.getEmail());
-            pstmt.setString(6, user.getIsbn());
-            pstmt.setDate(7, user.setBorrowDay());
-            pstmt.setDate(8,  user.setDueDay());
-            pstmt.setInt(9, user.getReadingTime());
-            pstmt.setString(10, user.getTypeUser());
-            pstmt.executeUpdate();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
 
+       try (Connection conn = SQLiteConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+           pstmt.setInt(1, user.getBorrowerId());
+           pstmt.setString(2, user.getFullName());
+           pstmt.setString(3, user.getAddress());
+           pstmt.setString(4, user.getPhoneNumber());
+           pstmt.setString(5, user.getEmail());
+           pstmt.setString(6, user.getIsbn());
+           pstmt.setDate(7, user.setBorrowDay());
+           pstmt.setDate(8,  user.setDueDay());
+           pstmt.setInt(9, user.getReadingTime());
+           pstmt.setString(10, user.getTypeUser());
+           pstmt.setInt(11, user.getFineMoney());
+           pstmt.setDate(12, user.getReturnDay());
+           pstmt.executeUpdate();
+       } catch (Exception e) {
+           System.out.println(e.getMessage());
+       }
+   }
 
 
     private void searchISBN(){
@@ -649,7 +681,6 @@ public class ManagerController implements ActionListener {
         }
     }
 
-
     private void searchAuthor() {
         String author = this.book.managerBook.getAuthor();
         ListBook books = getBooksByAuthor(author);  // Giả sử getBooksByAuthor trả về một danh sách các sách
@@ -663,7 +694,6 @@ public class ManagerController implements ActionListener {
         }
     }
 
-
     private void searchPublisher() {
         String publisher = this.book.managerBook.getPublisher();
         ListBook books = getBooksByPublisher(publisher);
@@ -676,7 +706,6 @@ public class ManagerController implements ActionListener {
             return;
         }
     }
-
 
     private void searchPageNumber() {
         int pageNumber;
@@ -713,10 +742,6 @@ public class ManagerController implements ActionListener {
     }
 
 
-
-
-
-    //Kiem tra ma ISBN da ton tai trong co so du lieu chua
     public static boolean isIsbnExist(String ISBN) {
         String sql = "SELECT 1 FROM Books WHERE ISBN = ?";
 
@@ -733,10 +758,6 @@ public class ManagerController implements ActionListener {
         }
     }
 
-
-
-
-    //lay thong tin sach tu nguoi dung
     private Book setBook() {
         // Kiểm tra các trường thông tin khi người dùng nhập sách không được để trống
         if (this.book.managerBook.getTitle().isEmpty() ||
@@ -784,7 +805,6 @@ public class ManagerController implements ActionListener {
         return this.book; // Trả về đối tượng book đã được thiết lập
     }
 
-
     private LibraryUser setUser() {
 
         if (this.user.managerBook.getFullName().isEmpty() || this.user.managerBook.getEmail().isEmpty() ||
@@ -814,79 +834,13 @@ public class ManagerController implements ActionListener {
 
         return this.user;
     }
-    private void searchUserId() {
-        int id = 0;
-        if (this.user.managerBook.getBorrowerId().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Vui lòng nhập Borrower ID!", "Thông báo", JOptionPane.ERROR_MESSAGE);
-            return; // Kết thúc phương thức nếu không có thông tin nào được nhập
-        }
-        try {
-            id = Integer.parseInt(this.user.managerBook.getBorrowerId());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "ID phải là một số hợp lệ!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // Nếu có giá trị trong ô Borrower ID, đảm bảo không có thông tin nào khác được nhập
-        if (!this.user.managerBook.getFullName().isEmpty() ||
-                !this.user.managerBook.getEmail().isEmpty() ||
-                !this.user.managerBook.getAddress().isEmpty() ||
-                !this.user.managerBook.getPhoneNumber().isEmpty() ||
-                !this.user.managerBook.getTyprUse().isEmpty()) {
-
-            JOptionPane.showMessageDialog(null, "Chỉ được nhập Borrower ID, không được nhập thêm thông tin khác!", "Thông báo", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        LibraryUser users = getUserById(id);
-        if (users == null) {
-            return;
-        }
-        String sql = "SELECT * FROM Books WHERE ISBN = ?";
-        Book book = getBookByIsbn(users.getIsbn(), sql);
-        if (book != null) {
-            // Cập nhật thông tin lên JTable
-            managerBook.displayTable_user(book, users);
-        } else {
-            JOptionPane.showMessageDialog(null, "Không tìm thấy user với ISBN này!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-        }
-        System.out.println("Searching book...");
-    }
 
 
 
 
-    public void updateTotalBook(Book book, String isbn) {
-        String sqlUpdate = "UPDATE Books SET available_books = ? WHERE ISBN = ?";
-
-        if (book == null) {
-            JOptionPane.showMessageDialog(null, "Book không hợp lệ hoặc không tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try (Connection conn = SQLiteConnection.getConnection();
-             PreparedStatement pstmtUpdate = conn.prepareStatement(sqlUpdate)) {
-            // Cập nhật số lượng vào cơ sở dữ liệu
-            pstmtUpdate.setInt(1, book.getTotalBooksInStock());
-            pstmtUpdate.setString(2, isbn);
-            int rowsAffected = pstmtUpdate.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Cap nhat thanh cong!!");
-            } else {
-                // Không tìm thấy sách với ISBN trong cơ sở dữ liệu
-                JOptionPane.showMessageDialog(null, "Không tìm thấy sách với ISBN: " + isbn, "Thông báo", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-        } catch (SQLException e) {
-            // Hiển thị thông báo lỗi khi xảy ra ngoại lệ
-            JOptionPane.showMessageDialog(null, "Lỗi khi cập nhật số lượng sách: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-    }
-
-    private LibraryUser getUserById(int id) {
-        String sql = "SELECT * FROM User WHERE id = ?";
-        LibraryUser user = null;
+    public LibraryUser getUserById(int id) {
+        String sql = "SELECT * FROM Users WHERE id = ?";
+        LibraryUser user_sql = null;
 
         try (Connection conn = SQLiteConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -895,7 +849,8 @@ public class ManagerController implements ActionListener {
 
             // Kiểm tra xem có kết quả không
             if (rs.next()) {
-                user = new LibraryUser(
+                // Khởi tạo đối tượng LibraryUser
+                user_sql = new LibraryUser(
                         rs.getString("fullname"),
                         rs.getString("address"),
                         rs.getString("phonenumber"),
@@ -912,69 +867,56 @@ public class ManagerController implements ActionListener {
                 );
             } else {
                 JOptionPane.showMessageDialog(null, "Không tìm thấy người dùng với ID: " + id, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                return null; // Trả về null nếu không tìm thấy người dùng
             }
         } catch (SQLException e) {
-            // Có thể ghi log lỗi ở đây
             JOptionPane.showMessageDialog(null, "Lỗi khi truy vấn người dùng: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return null; // Trả về null trong trường hợp xảy ra lỗi
         }
-        return user;
-    }
-
-    public Book getBookByIsbnDelete(String isbn) {
-        Book book = null;
-        String sql1 = "SELECT * FROM Books WHERE ISBN = ?"; // Cập nhật câu lệnh SQL
-
-        try (Connection conn = SQLiteConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql1)) {
-            pstmt.setString(1, isbn); // Thiết lập tham số ISBN
-            ResultSet rs = pstmt.executeQuery();
-
-            // Nếu có kết quả, tạo đối tượng Book từ kết quả truy vấn
-            if (rs.next()) {
-                book = new Book(
-                        rs.getString("ISBN"),
-                        rs.getInt("available_copies"),
-                        rs.getString("author"),
-                        rs.getString("title"),
-                        rs.getString("publisher"),
-                        rs.getInt("page_number"),
-                        rs.getString("genre"),
-                        this.managerBook);
-            } else {
-                System.out.println("Không tìm thấy sách với ISBN: " + isbn);
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Lỗi khi truy vấn sách: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
-        return book; // Trả về book (có thể là null nếu không tìm thấy)
+        return user_sql;
     }
 
     public Book getBookByIsbn(String isbn, String sql) {
-        Book book = null;
+        Book book = this.book;
 
-        try (Connection conn = SQLiteConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, isbn);
-            ResultSet rs = pstmt.executeQuery();
+        // Kiểm tra giá trị ISBN
+        if (isbn == null || isbn.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "ISBN không hợp lệ.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return book; // Trả về đối tượng book mặc định
+        }
 
-            // Nếu có kết quả, tạo đối tượng Book từ kết quả truy vấn
-            if (rs.next()) {
-                book = new Book(
-                        rs.getString("ISBN"),
-                        rs.getInt("available_copies"),
-                        rs.getString("author"),
-                        rs.getString("title"),
-                        rs.getString("publisher"),
-                        rs.getInt("page_number"),
-                        rs.getString("genre"),
-                        this.managerBook);
+        try (Connection conn = SQLiteConnection.getConnection()) {
+            if (conn == null) {
+                JOptionPane.showMessageDialog(null, "Không thể kết nối tới cơ sở dữ liệu.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return book;
+            }
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, isbn);
+                ResultSet rs = pstmt.executeQuery();
+
+                // Nếu có kết quả, tạo đối tượng Book từ kết quả truy vấn
+                if (rs.next()) {
+                    book = new Book(
+                            rs.getString("ISBN"),
+                            rs.getInt("available_copies"),
+                            rs.getInt("available_books"),
+                            rs.getString("status"),
+                            rs.getString("author"),
+                            rs.getString("title"),
+                            rs.getString("publisher"),
+                            rs.getInt("page_number"),
+                            rs.getString("genre"),
+                            this.managerBook);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Không tìm thấy sách với ISBN: " + isbn, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                }
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Lỗi khi truy vấn sách: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
         return book;
     }
-
 
 
     private Book getBookByTitleAndAuthor(String title, String author) {
@@ -993,6 +935,8 @@ public class ManagerController implements ActionListener {
                 book = new Book(
                         rs.getString("ISBN"),
                         rs.getInt("available_copies"),
+                        rs.getInt("available_books"),
+                        rs.getString("status"),
                         rs.getString("author"),
                         rs.getString("title"),
                         rs.getString("publisher"),
@@ -1005,7 +949,6 @@ public class ManagerController implements ActionListener {
         }
         return book;
     }
-
 
     private ListBook getBooksByTitle(String title) {
         String sql = "SELECT * FROM Books WHERE title = ?"; // Câu lệnh SQL tìm kiếm theo tiêu đề
@@ -1021,6 +964,8 @@ public class ManagerController implements ActionListener {
                 Book book = new Book(
                         rs.getString("ISBN"),
                         rs.getInt("available_copies"),
+                        rs.getInt("available_books"),
+                        rs.getString("status"),
                         rs.getString("author"),
                         rs.getString("title"),
                         rs.getString("publisher"),
@@ -1049,6 +994,8 @@ public class ManagerController implements ActionListener {
                 Book book = new Book(
                         rs.getString("ISBN"),
                         rs.getInt("available_copies"),
+                        rs.getInt("available_books"),
+                        rs.getString("status"),
                         rs.getString("author"),
                         rs.getString("title"),
                         rs.getString("publisher"),
@@ -1077,6 +1024,8 @@ public class ManagerController implements ActionListener {
                 Book book = new Book(
                         rs.getString("ISBN"),
                         rs.getInt("available_copies"),
+                        rs.getInt("available_books"),
+                        rs.getString("status"),
                         rs.getString("author"),
                         rs.getString("title"),
                         rs.getString("publisher"),
@@ -1090,6 +1039,7 @@ public class ManagerController implements ActionListener {
         }
         return books; // Trả về danh sách sách tìm thấy (có thể rỗng nếu không tìm thấy sách)
     }
+
     private ListBook getBooksByGenre(String genre) {
         String sql = "SELECT * FROM Books WHERE genre = ?"; // Câu lệnh SQL tìm kiếm theo tiêu đề
         ListBook books = new ListBook(); // Danh sách để lưu các cuốn sách tìm thấy
@@ -1104,6 +1054,8 @@ public class ManagerController implements ActionListener {
                 Book book = new Book(
                         rs.getString("ISBN"),
                         rs.getInt("available_copies"),
+                        rs.getInt("available_books"),
+                        rs.getString("status"),
                         rs.getString("author"),
                         rs.getString("title"),
                         rs.getString("publisher"),
@@ -1117,9 +1069,6 @@ public class ManagerController implements ActionListener {
         }
         return books; // Trả về danh sách sách tìm thấy (có thể rỗng nếu không tìm thấy sách)
     }
-
-
-
 
     //Ham truy van databses theo author va tra ve doi tuong book
     private ListBook getBooksByAuthor(String author) {
@@ -1136,6 +1085,8 @@ public class ManagerController implements ActionListener {
                 Book book = new Book(
                         rs.getString("ISBN"),
                         rs.getInt("available_copies"),
+                        rs.getInt("available_books"),
+                        rs.getString("status"),
                         rs.getString("author"),
                         rs.getString("title"),
                         rs.getString("publisher"),
@@ -1148,85 +1099,6 @@ public class ManagerController implements ActionListener {
             JOptionPane.showMessageDialog(null, "Lỗi khi truy vấn sách: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
         return books; // Trả về danh sách sách tìm thấy (có thể rỗng nếu không tìm thấy sách)
-    }
-
-    private void updateUserDatabase(LibraryUser user) {
-        // Check if the user object is not null
-        if (user == null) {
-            JOptionPane.showMessageDialog(null, "User cannot be null!", "Warning", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        String sql = "UPDATE User SET fullname = ?, address = ?, phonenumber = ?, email = ?, isbn = ?, borrow_date = ?, due_date = ?, readingTime = ?, type_user = ? WHERE id = ?";
-
-        try (Connection conn = SQLiteConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            // Set values for parameters from the user object
-            pstmt.setString(1, user.getFullName());
-            pstmt.setString(2, user.getAddress());
-            pstmt.setString(3, user.getPhoneNumber());
-            pstmt.setString(4, user.getEmail());
-            pstmt.setString(5, user.getIsbn());
-            pstmt.setDate(6, user.getBorrowDay());
-            pstmt.setDate(7, user.getDueDay());
-            pstmt.setInt(8, user.getReadingTime());
-            pstmt.setInt(9, user.getBorrowerId()); // Use user ID for the WHERE clause
-
-            // Execute the update
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(null, "Cập nhật thông tin user thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace(); // Handle the error
-            JOptionPane.showMessageDialog(null, "Cập nhật thất bại: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-
-
-    public void updateBookInfo() {
-        String isbn = this.book.managerBook.getISBN();
-        String title = this.book.managerBook.getTitle();
-        String author = this.book.managerBook.getAuthor();
-        String publisher = this.book.managerBook.getPublisher();
-        String genre = this.book.managerBook.getGenre();
-        String numberBook =  this.book.managerBook.getNumberBook();
-        String pageNumberStr = this.book.managerBook.getPageNumber();
-        int pageNumber = 0;
-        int numberBooks = 0;
-        // Kiểm tra tính hợp lệ
-        if (isbn.isEmpty() || title.isEmpty() || author.isEmpty() || publisher.isEmpty() || genre.isEmpty() || pageNumberStr.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Vui lòng điền đầy đủ thông tin!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        try {
-            pageNumber = Integer.parseInt(pageNumberStr);
-            numberBooks = Integer.parseInt(numberBook);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Số trang phải là một số hợp lệ!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        Book updatedBook = new Book(isbn, numberBooks, author, title, publisher, pageNumber, genre, managerBook );
-        // Gọi phương thức để cập nhật thông tin
-
-        updatedBook.addNumberBook();
-        updateTotalBook(updatedBook, updatedBook.getISBN());
-
-
-    }
-
-
-    //ham xu ly button clear
-    private void clear() {
-        managerBook.clear();
-    }
-    //ham xu ly button exit
-    public void exit(){
-        managerBook.dispose();
-        System.exit(0);
     }
 
 }
