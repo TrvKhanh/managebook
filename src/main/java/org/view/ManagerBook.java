@@ -15,7 +15,6 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
-import jdk.internal.icu.util.CodePointMap;
 import org.controller.ManagerController;
 import org.model.*;
 
